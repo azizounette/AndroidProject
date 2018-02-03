@@ -27,7 +27,7 @@ public class Colour extends Filter {
         bmp.setPixels(pixels, 0, outW, 0, 0, outW, outH);
     }
 
-    private void grayAndTint(int tint) {
+    public void grayAndTint(int tint) {
         Bitmap bmp = this.getBmp();
         int offset = 30;
         int outH = bmp.getHeight();
@@ -62,8 +62,5 @@ public class Colour extends Filter {
         }
         bmp.setPixels(pixels, 0, outW, 0, 0, outW, outH);
     }
-
-
-
 
 }
