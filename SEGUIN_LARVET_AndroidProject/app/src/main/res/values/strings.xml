@@ -3,4 +3,5 @@
 
     <string name="imageView">Space dedicated to the picture</string>
     <string name="galleryButton">Gallery</string>
+    <string name="cameraButton">Camera</string>
 </resources>
