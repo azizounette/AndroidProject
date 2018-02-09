@@ -8,11 +8,11 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -26,6 +26,27 @@ public class MainActivity extends AppCompatActivity {
     private Button cameraButton;
     private static int IMAGE_GALLERY_REQUEST = 0;
     private static int REQUEST_TAKE_PHOTO = 0;
+
+
+    /* ZOOM START */
+
+    View.OnTouchListener handleTouch = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                int action = event.getActionMasked();
+                if(action == MotionEvent.ACTION_DOWN) {
+                    System.out.println("HELLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+                }
+
+                if (action == MotionEvent.ACTION_POINTER_DOWN) {
+                    System.out.println("COUCOUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
+                }
+                return true;
+            }
+    };
+
+    /* ZOOM END */
 
 
     private View.OnClickListener galleryButtonListener = new View.OnClickListener() {
@@ -105,5 +126,6 @@ public class MainActivity extends AppCompatActivity {
 
         cameraButton = (Button) findViewById(R.id.cameraButton);
         cameraButton.setOnClickListener(cameraButtonListener);
+        imageView.setOnTouchListener(handleTouch);
     }
 }
