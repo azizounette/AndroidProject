@@ -1,13 +1,18 @@
 package com.example.alarvet.seguin_larvet_androidproject;
 
+import android.Manifest;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -16,6 +21,8 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,9 +31,10 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imageView;
     private Button galleryButton;
     private Button cameraButton;
-    private static int IMAGE_GALLERY_REQUEST = 0;
-    private static int REQUEST_TAKE_PHOTO = 0;
+    private static int IMAGE_GALLERY_REQUEST = 1;
+    private static int REQUEST_TAKE_PHOTO = 2;
 
+    private Uri file;
 
     /* ZOOM START */
 
@@ -36,11 +44,9 @@ public class MainActivity extends AppCompatActivity {
 
                 int action = event.getActionMasked();
                 if(action == MotionEvent.ACTION_DOWN) {
-                    System.out.println("HELLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
                 }
 
                 if (action == MotionEvent.ACTION_POINTER_DOWN) {
-                    System.out.println("COUCOUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
                 }
                 return true;
             }
@@ -56,24 +62,35 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private View.OnClickListener cameraButtonListener = new View.OnClickListener() {
-        public void onClick(View v) {
-            dispatchTakePictureIntent();
-        }
+        public void onClick(View v) { takePicture(); }
     };
 
-    private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            REQUEST_TAKE_PHOTO = 1;
-            IMAGE_GALLERY_REQUEST = 0;
-            startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+    private void takePicture() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        file = Uri.fromFile(getOutputMediaFile());
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, file);
+
+        startActivityForResult(intent, REQUEST_TAKE_PHOTO);
+
+    }
+
+    private static File getOutputMediaFile(){
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "CameraDemo");
+
+        if (!mediaStorageDir.exists()){
+            if (!mediaStorageDir.mkdirs()){
+                return null;
+            }
         }
+
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        return new File(mediaStorageDir.getPath() + File.separator +
+                "IMG_"+ timeStamp + ".jpg");
     }
 
     public void onImageGalleryClicked() {
         Intent picturePickedIntent = new Intent(Intent.ACTION_PICK);
-        IMAGE_GALLERY_REQUEST = 1;
-        REQUEST_TAKE_PHOTO = 0;
 
         File pictureDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_ALARMS);
         String pictureDirectoryPath = pictureDirectory.getPath();
@@ -88,14 +105,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
+
+            imageView.setImageURI(file);
+
+            /*Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
-            imageView.setImageBitmap(imageBitmap);
+            imageView.setImageBitmap(imageBitmap);*/
         }
 
-        if (resultCode == RESULT_OK) {
+        if (requestCode == IMAGE_GALLERY_REQUEST) {
             //success
-            if (requestCode == IMAGE_GALLERY_REQUEST) {
+            if (resultCode == RESULT_OK) {
                 // hearing from image gallery
                 Uri imageUri = data.getData(); // address of image on SD card
 
@@ -118,6 +138,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE }, 0);
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
 
         imageView = (ImageView) findViewById(R.id.imageView);
 
