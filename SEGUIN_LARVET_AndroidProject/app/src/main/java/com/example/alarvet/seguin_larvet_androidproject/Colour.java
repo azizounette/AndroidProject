@@ -13,29 +13,26 @@ public class Colour extends Filter {
         super(bmp);
     }
 
+    /*TODO
     public void toGray() {
         Bitmap bmp = this.getBmp();
-        int outH = bmp.getHeight();
-        int outW = bmp.getWidth();
 
-        int pixels[] = new int[outW*outH];
-        bmp.getPixels(pixels, 0, outW, 0, 0, outW, outH);
-        for (int i = 0; i < outW*outH; i++) {
+        int pixels[] = new int[width*height];
+        bmp.getPixels(pixels, 0, width, 0, 0, width, height);
+        for (int i = 0; i < width*height; i++) {
             int gray = (int) (0.11 * Color.blue(pixels[i]) + 0.3 * Color.red(pixels[i]) + 0.59 * Color.green(pixels[i]));
             pixels[i] = Color.rgb(gray, gray, gray);
         }
-        bmp.setPixels(pixels, 0, outW, 0, 0, outW, outH);
-    }
+        bmp.setPixels(pixels, 0, width, 0, 0, width, height);
+    }*/
 
     public void grayAndTint(int tint) {
         Bitmap bmp = this.getBmp();
         int offset = 30;
-        int outH = bmp.getHeight();
-        int outW = bmp.getWidth();
 
-        int pixels[] = new int[outW*outH];
-        bmp.getPixels(pixels, 0, outW, 0, 0, outW, outH);
-        for (int i = 0; i < outW*outH; i++) {
+        int pixels[] = new int[width*height];
+        bmp.getPixels(pixels, 0, width, 0, 0, width, height);
+        for (int i = 0; i < width*height; i++) {
             float[] hsv = new float[3];
             Color.colorToHSV(pixels[i], hsv);
             // TODO cercle chromatique
@@ -44,23 +41,40 @@ public class Colour extends Filter {
                 pixels[i] = Color.rgb(gray, gray, gray);
             }
         }
-        bmp.setPixels(pixels, 0, outW, 0, 0, outW, outH);
+        bmp.setPixels(pixels, 0, width, 0, 0, width, height);
     }
 
     public void changeTint(int tint) {
         Bitmap bmp = this.getBmp();
-        int outH = bmp.getHeight();
-        int outW = bmp.getWidth();
-
-        int pixels[] = new int[outW*outH];
-        bmp.getPixels(pixels, 0, outW, 0, 0, outW, outH);
-        for (int i = 0; i < outW*outH; i++) {
+        int pixels[] = new int[width*height];
+        bmp.getPixels(pixels, 0, width, 0, 0, width, height);
+        for (int i = 0; i < width*height; i++) {
             float[] hsv = new float[3];
             Color.colorToHSV(pixels[i], hsv);
             hsv[0] = tint;
             pixels[i] = Color.HSVToColor(hsv);
         }
-        bmp.setPixels(pixels, 0, outW, 0, 0, outW, outH);
+        bmp.setPixels(pixels, 0, width, 0, 0, width, height);
+    }
+
+    public void sepia(){
+        Bitmap bmp = this.getBmp();
+        int[] pixels = new int[width * height];
+        bmp.getPixels(pixels, 0, width, 0, 0, width, height);
+        int tr, tg, tb, red, green, blue;
+        for (int i = 0; i < height*width; i++){
+            red = Color.red(pixels[i]);
+            green = Color.green(pixels[i]);
+            blue = Color.blue(pixels[i]);
+            tr = (int) (0.393*red + 0.796*green + 0.189*blue);
+            tg = (int) (0.349*red + 0.686*green + 0.168*blue);
+            tb = (int) (0.272*red + 0.534*green + 0.131*blue);
+            red = Math.min(tr, 255);
+            green = Math.min(tg, 255);
+            blue = Math.min(tb, 255);
+            pixels[i] = Color.rgb(red, green, blue);
+        }
+        bmp.setPixels(pixels, 0, width,  0, 0, width, height);
     }
 
 }

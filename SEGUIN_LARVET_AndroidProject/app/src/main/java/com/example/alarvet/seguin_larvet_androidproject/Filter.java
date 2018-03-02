@@ -8,9 +8,12 @@ import android.graphics.Bitmap;
 
 public abstract class Filter {
     private final Bitmap bmp;
+    protected int height;
+    protected int width;
 
     public Filter(Bitmap bmp) {
         this.bmp = bmp;
+        height = bmp.getWidth();
     }
 
     public  Bitmap getBmp() {
