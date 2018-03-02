@@ -55,6 +55,7 @@ public class Convolution extends Filter {
         int n = width * height;
 
         int[] pixels = new int[n];
+<<<<<<< HEAD
         bmp.getPixels(pixels, 0, width, 0, 0, width, height);
         int[] SATR  = (int[]) summedAreaTable(pixels, width, height)[0];
         int[] SATG  = (int[]) summedAreaTable(pixels, width, height)[1];
@@ -71,6 +72,7 @@ public class Convolution extends Filter {
     }
     /* End of average blurring effect */
 
+<<<<<<< HEAD
     public void laplacien(){
         Bitmap bmp = this.getBmp();
         int[] pixels = new int[width * height];
@@ -91,11 +93,14 @@ public class Convolution extends Filter {
         return (float) (10*radius*Math.exp(-((y-radius)*(y-radius)+(x-radius)*(x-radius))/(2*sigma*sigma)));
     }
 
-    public int[] ConvolutionMatrix(int cases , int dimension) {
+=======
+    // 1 = AverageBlur    2 = GaussianBlur    0/3 = Contouring    4 = Sharpening
+    private int[] ConvolutionMatrix (int cases , int dimension) {
         int[] res = new int[dimension*dimension];
         switch (cases) {
             case 0:
-                res[0] = -1;res[2] = 1;res[3] = -2;res[5] = 2;res[6] = -1;res[8] = 1;
+                res[0] = -1;res[2] = 1;res[3] = -1;res[5] = 1;res[6] = -1;res[8] = 1;
+>>>>>>> d9bc349a430c2e1997dc1d2ee891e955ffeff268
                 break;
             case 1:
                 for (int i = 0; i < dimension*dimension; i++) {
@@ -121,6 +126,7 @@ public class Convolution extends Filter {
         return res;
     }
 
+<<<<<<< HEAD
     //TODO   1 = AverageBlur    2 = GaussianBlur    3 = Contouring    4 = Sharpening
     public void convolution (int[] matrixConvo) {
         Bitmap bmp = this.getBmp();
@@ -129,10 +135,10 @@ public class Convolution extends Filter {
         int[] pixelsf = new int[width * height];
         bmp.getPixels(pixels, 0, width, 0, 0, width, height);
         bmp.getPixels(pixelsf, 0, width, 0, 0, width, height);
-
         int matrixWidth = (int) Math.sqrt(matrixConvo.length);
         int radius = ((matrixWidth-1)/2);
 
+<<<<<<< HEAD
         float param1;
         float param2;
         float param3;
@@ -192,7 +198,4 @@ public class Convolution extends Filter {
         
         bmp.setPixels(pixelsf, 0, width,  0, 0, width, height);
     }
-    
-    
-
 }

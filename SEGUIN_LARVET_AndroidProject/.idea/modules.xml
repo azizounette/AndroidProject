@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+<<<<<<< HEAD
       <module fileurl="file://C:\Users\Gambas\Documents\GitHub\AndroidProject\SEGUIN_LARVET_AndroidProject\SEGUIN_LARVET_AndroidProject.iml" filepath="C:\Users\Gambas\Documents\GitHub\AndroidProject\SEGUIN_LARVET_AndroidProject\SEGUIN_LARVET_AndroidProject.iml" />
       <module fileurl="file://C:\Users\Gambas\Documents\GitHub\AndroidProject\SEGUIN_LARVET_AndroidProject\app\app.iml" filepath="C:\Users\Gambas\Documents\GitHub\AndroidProject\SEGUIN_LARVET_AndroidProject\app\app.iml" />
       <module fileurl="file:///autofs/netapp/travail/maxseguin/AndroidStudioProjects/AndroidProject/SEGUIN_LARVET_AndroidProject/SEGUIN_LARVET_AndroidProject.iml" filepath="/autofs/netapp/travail/maxseguin/AndroidStudioProjects/AndroidProject/SEGUIN_LARVET_AndroidProject/SEGUIN_LARVET_AndroidProject.iml" />
