@@ -14,6 +14,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -34,6 +36,13 @@ public class MainActivity extends AppCompatActivity {
     private Button cameraButton;
     private static int IMAGE_GALLERY_REQUEST = 1;
     private static int REQUEST_TAKE_PHOTO = 2;
+
+    //Variables used for applying filters to the image
+    private Colour colourFilter;
+    private ComplexFilter complexFilter;
+    private Contrast contrastFilter;
+    private Convolution convolutionFilter;
+    private Luminosity luminosityFilter;
 
     private Uri file;
 
@@ -172,8 +181,8 @@ public class MainActivity extends AppCompatActivity {
                 InputStream inputStream; // stream to read the image data
                 try {
                     inputStream = getContentResolver().openInputStream(imageUri);
-                    bitmap = BitmapFactory.decodeStream(inputStream);
                     originalBitmap = BitmapFactory.decodeStream(inputStream);
+                    bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
                     imageView.setImageBitmap(bitmap);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
@@ -195,11 +204,30 @@ public class MainActivity extends AppCompatActivity {
 
         imageView = (ImageView) findViewById(R.id.imageView);
 
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+
         galleryButton = (Button) findViewById(R.id.galleryButton);
         galleryButton.setOnClickListener(galleryButtonListener);
 
         cameraButton = (Button) findViewById(R.id.cameraButton);
         cameraButton.setOnClickListener(cameraButtonListener);
         imageView.setOnTouchListener(handleTouch);
+
+        colourFilter = new Colour(bitmap);
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.changeTint:
+                colourFilter.changeTint(50);
+                return true;
+            default:
+                return false;
+        }
     }
 }

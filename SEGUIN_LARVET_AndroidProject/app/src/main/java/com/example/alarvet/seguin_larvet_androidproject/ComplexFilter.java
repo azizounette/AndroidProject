@@ -11,22 +11,13 @@ public class ComplexFilter extends Filter {
     public ComplexFilter(Bitmap bmp){
         super(bmp);
     }
-
-    public int[] grayArray(int[] tab, int height, int width) {
-        int[] res = new int[height*width];
-        for (int i = 0; i < height*width; i++) {
-            final int w = (11 * Color.blue(tab[i]) + 30 * Color.red(tab[i]) + 59 * Color.green(tab[i])) / 100;
-            res[i] = Color.rgb(w, w, w);
-        }
-        return res;
-    }
     
     //TODO val between 0 and 256
     public void warhol(int val) {
         Bitmap bmp = this.getBmp();
         int[] pixels = new int[width * height];
         bmp.getPixels(pixels, 0, width, 0, 0, width, height);
-        pixels = grayArray(pixels, height, width);
+        pixels = arrayOfGrayPixels(pixels, height, width);
         for (int i = 0; i < height*width; i++) {
             if (Color.red(pixels[i]) < val) {
                 pixels[i] = Color.rgb(255,0,0);

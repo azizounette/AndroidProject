@@ -17,13 +17,12 @@ public class Contrast extends Filter {
     private int[] histogram(Bitmap bmp) {
         int[] res = new int[256];
         Bitmap bmCopy = bmp.copy(bmp.getConfig(), true);
-        Colour colour = new Colour(bmCopy);
-        colour.toGray(); //TODO Can we do better?
-
-        int pixels[] = new int[width*height];
-        bmCopy.getPixels(pixels, 0, width, 0, 0, width, height);
+        int pixels1[] = new int[width*height];
+        int pixels2[] = new int[width*height];
+        bmCopy.getPixels(pixels1, 0, width, 0, 0, width, height);
+        pixels2 = arrayOfGrayPixels(pixels1,height,width);
         for (int i = 0; i < width*height; i++)
-            res[Color.red(pixels[i])]++;
+            res[Color.red(pixels2[i])]++;
         return res;
     }
 
