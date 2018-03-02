@@ -1,10 +1,11 @@
 package com.example.alarvet.seguin_larvet_androidproject;
 
 import android.Manifest;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.graphics.PointF;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.StrictMode;
@@ -36,26 +37,80 @@ public class MainActivity extends AppCompatActivity {
 
     private Uri file;
 
-    /* ZOOM START */
+    Matrix matrix = new Matrix();
+    Matrix savedMatrix = new Matrix();
+
+    // We can be in one of these 3 states
+    static final int NONE = 0;
+    static final int DRAG = 1;
+    static final int ZOOM = 2;
+    int mode = NONE;
+
+    PointF start = new PointF();
+    PointF mid = new PointF();
+    float oldDist = 1f;
 
     View.OnTouchListener handleTouch = new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
 
-                int action = event.getActionMasked();
-                if(action == MotionEvent.ACTION_DOWN) {
-                }
-
-                if (action == MotionEvent.ACTION_POINTER_DOWN) {
-                }
-                return true;
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    savedMatrix.set(matrix);
+                    start.set(event.getX(), event.getY());
+                    mode = DRAG;
+                    break;
+                case MotionEvent.ACTION_POINTER_DOWN:
+                    oldDist = spacing(event);
+                    if (oldDist > 10f) {
+                        savedMatrix.set(matrix);
+                        midPoint(mid, event);
+                        mode = ZOOM;
+                    }
+                    break;
+                case MotionEvent.ACTION_POINTER_UP:
+                    mode = NONE;
+                    break;
+                case MotionEvent.ACTION_UP:
+                    mode = NONE;
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    if (mode == DRAG) {
+                        matrix.set(savedMatrix);
+                        matrix.postTranslate(event.getX() - start.x, event.getY()
+                                - start.y);
+                    } else if (mode == ZOOM) {
+                        float newDist = spacing(event);
+                        if (newDist > 10f) {
+                            matrix.set(savedMatrix);
+                            float scale = newDist / oldDist;
+                            matrix.postScale(scale, scale, mid.x, mid.y);
+                        }
+                    }
+                    break;
             }
+            imageView.setImageMatrix(matrix);
+            return true;
+        }
     };
 
-    /* ZOOM END */
+        /** Determine the space between the first two fingers */
+        private float spacing(MotionEvent event) {
+            float x = event.getX(0) - event.getX(1);
+            float y = event.getY(0) - event.getY(1);
+            return (float)Math.sqrt(x * x + y * y);
+        }
+
+        /** Calculate the mid point of the first two fingers */
+        private void midPoint(PointF point, MotionEvent event) {
+            float x = event.getX(0) + event.getX(1);
+            float y = event.getY(0) + event.getY(1);
+            point.set(x / 2, y / 2);
+        }
 
 
-    private View.OnClickListener galleryButtonListener = new View.OnClickListener() {
+
+        private View.OnClickListener galleryButtonListener = new View.OnClickListener() {
         public void onClick(View v) {
             onImageGalleryClicked();
         }
@@ -76,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static File getOutputMediaFile(){
         File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "CameraDemo");
+                Environment.DIRECTORY_PICTURES), "Camera");
 
         if (!mediaStorageDir.exists()){
             if (!mediaStorageDir.mkdirs()){
