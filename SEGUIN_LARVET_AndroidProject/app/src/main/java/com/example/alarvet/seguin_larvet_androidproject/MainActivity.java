@@ -168,7 +168,6 @@ public class MainActivity extends AppCompatActivity {
         Uri data = Uri.parse(pictureDirectoryPath);
 
         picturePickedIntent.setDataAndType(data, "image/*");
-        System.out.println("HELLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
         startActivityForResult(picturePickedIntent, REQUEST_IMAGE_GALLERY);
     }
 
@@ -191,7 +190,6 @@ public class MainActivity extends AppCompatActivity {
                     break;
 
                 case REQUEST_IMAGE_GALLERY:
-                    System.out.println("BYEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
                     Uri imageUri = data.getData(); // address of image on SD card
 
                     InputStream inputStream; // stream to read the image data
