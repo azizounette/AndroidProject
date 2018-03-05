@@ -14,7 +14,7 @@ public class Convolution extends Filter {
     }
 
     /* Average blurring effect */
-    public Object[] summedAreaTable (int[] initialTable, int width, int height) {
+    public Object[] summedAreaTable (int[] initialTable) {
         int[] SATR = new int[width*height];
         int[] SATG = new int[width*height];
         int[] SATB = new int[width*height];
@@ -56,9 +56,11 @@ public class Convolution extends Filter {
 
         int[] pixels = new int[n];
         bmp.getPixels(pixels, 0, width, 0, 0, width, height);
-        int[] SATR  = (int[]) summedAreaTable(pixels, width, height)[0];
-        int[] SATG  = (int[]) summedAreaTable(pixels, width, height)[1];
-        int[] SATB  = (int[]) summedAreaTable(pixels, width, height)[2];
+
+        int[] SATR  = (int[]) summedAreaTable(pixels)[0];
+        int[] SATG  = (int[]) summedAreaTable(pixels)[1];
+        int[] SATB  = (int[]) summedAreaTable(pixels)[2];
+
         int weight = (2*radius+1)*(2*radius+1);
         for (int i = radius+1; i < width - radius; i++){
             for (int j = radius+1; j < height - radius; j++){

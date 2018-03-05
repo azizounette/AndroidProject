@@ -1,6 +1,7 @@
 package com.example.alarvet.seguin_larvet_androidproject;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,6 +13,7 @@ import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,8 +21,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -185,11 +189,12 @@ public class MainActivity extends AppCompatActivity {
                     BitmapDrawable bitmapDrawable = ((BitmapDrawable) imageView.getDrawable());
                     if(bitmapDrawable == null){
                         imageView.buildDrawingCache();
-                        bitmap = imageView.getDrawingCache();
+                        originalBitmap = imageView.getDrawingCache();
                         imageView.buildDrawingCache(false);
                     } else{
-                        bitmap = bitmapDrawable.getBitmap();
+                        originalBitmap = bitmapDrawable.getBitmap();
                     }
+                    bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
                     break;
 
                 case REQUEST_IMAGE_GALLERY:
@@ -201,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
                         originalBitmap = BitmapFactory.decodeStream(inputStream);
                         bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
                         imageView.setImageBitmap(bitmap);
+                        createFilters();
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                         Toast.makeText(this, "Impossible to open the image", Toast.LENGTH_LONG).show();
@@ -237,6 +243,11 @@ public class MainActivity extends AppCompatActivity {
         outState.putParcelable(SAVE_BMP, bitmap);
     }
 
+    private void createFilters() {
+        colourFilter = new Colour(bitmap);
+        convolutionFilter = new Convolution(bitmap);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -245,14 +256,16 @@ public class MainActivity extends AppCompatActivity {
         imageView = (ImageView) findViewById(R.id.imageView);
 
         if (savedInstanceState != null) {
-            bitmap = savedInstanceState.getParcelable(SAVE_BMP);
+            originalBitmap = savedInstanceState.getParcelable(SAVE_BMP);
+            bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
             imageView.setImageBitmap(bitmap);
         } else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
             StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
             StrictMode.setVmPolicy(builder.build());
 
-            bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+            originalBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+            bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
         }
 
         galleryButton = (Button) findViewById(R.id.galleryButton);
@@ -261,22 +274,43 @@ public class MainActivity extends AppCompatActivity {
         cameraButton = (Button) findViewById(R.id.cameraButton);
         cameraButton.setOnClickListener(cameraButtonListener);
         imageView.setOnTouchListener(handleTouch);
-
-        colourFilter = new Colour(bitmap);
     }
 
-   /* public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
         return true;
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(MainActivity.this);
+        View mView = getLayoutInflater().inflate(R.layout.dialog_spinner, null);
+        final Spinner mSpinner = (Spinner) mView.findViewById(R.id.spinner);
         switch (item.getItemId()) {
-            case R.id.changeTint:
-                colourFilter.changeTint(50);
+            case R.id.averageBlurring:
+                mBuilder.setTitle("Amount of Blur desired");
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.amountBlur));
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                mSpinner.setAdapter(adapter);
+                mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        colourFilter.changeTint(320);
+                        //convolutionFilter.averageBlurring(mSpinner.getSelectedItemPosition());
+                        dialogInterface.dismiss();
+                    }
+                });
+                mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+                mBuilder.setView(mView);
+                AlertDialog dialog = mBuilder.create();
+                dialog.show();
                 return true;
             default:
                 return false;
         }
-    }*/
+    }
 }

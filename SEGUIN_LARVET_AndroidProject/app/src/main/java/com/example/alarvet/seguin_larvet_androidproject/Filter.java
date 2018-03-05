@@ -14,7 +14,8 @@ public abstract class Filter {
 
     public Filter(Bitmap bmp) {
         this.bmp = bmp;
-        height = bmp.getWidth();
+        height = bmp.getHeight();
+        width = bmp.getWidth();
     }
 
     public  Bitmap getBmp() {
