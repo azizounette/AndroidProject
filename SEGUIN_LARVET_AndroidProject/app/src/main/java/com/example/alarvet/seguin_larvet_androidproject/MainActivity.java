@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.PointF;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.StrictMode;
@@ -34,8 +35,8 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imageView;
     private Button galleryButton;
     private Button cameraButton;
-    private static int IMAGE_GALLERY_REQUEST = 1;
-    private static int REQUEST_TAKE_PHOTO = 2;
+    private static final int IMAGE_GALLERY_REQUEST = 1;
+    private static final int REQUEST_TAKE_PHOTO = 2;
 
     //Variables used for applying filters to the image
     private Colour colourFilter;
@@ -44,20 +45,26 @@ public class MainActivity extends AppCompatActivity {
     private Convolution convolutionFilter;
     private Luminosity luminosityFilter;
 
-    private Uri file;
+    private Uri fileSavePic;
 
     Matrix matrix = new Matrix();
     Matrix savedMatrix = new Matrix();
 
     // We can be in one of these 3 states
-    static final int NONE = 0;
-    static final int DRAG = 1;
-    static final int ZOOM = 2;
+    private static final int NONE = 0;
+    private static final int DRAG = 1;
+    private static final int ZOOM = 2;
     int mode = NONE;
 
+    // Variables used for scaling
     PointF start = new PointF();
     PointF mid = new PointF();
     float oldDist = 1f;
+
+
+    // Variable used for saving
+    private static final String SAVE_BMP = "SaveBitmap";
+
 
     View.OnTouchListener handleTouch = new View.OnTouchListener() {
         @Override
@@ -131,8 +138,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void takePicture() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        file = Uri.fromFile(getOutputMediaFile());
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, file);
+        fileSavePic = Uri.fromFile(getOutputMediaFile());
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileSavePic);
 
         startActivityForResult(intent, REQUEST_TAKE_PHOTO);
 
@@ -169,7 +176,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
-            imageView.setImageURI(file);
+            imageView.setImageURI(fileSavePic);
+            BitmapDrawable bitmapDrawable = ((BitmapDrawable) imageView.getDrawable());
+            if(bitmapDrawable==null){
+                imageView.buildDrawingCache();
+                bitmap = imageView.getDrawingCache();
+                imageView.buildDrawingCache(false);
+            }else
+            {
+                bitmap = bitmapDrawable .getBitmap();
+            }
         }
 
         if (requestCode == IMAGE_GALLERY_REQUEST) {
@@ -194,17 +210,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(SAVE_BMP, bitmap);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE }, 0);
-        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-        StrictMode.setVmPolicy(builder.build());
-
         imageView = (ImageView) findViewById(R.id.imageView);
 
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+        if (savedInstanceState != null) {
+            bitmap = savedInstanceState.getParcelable(SAVE_BMP);
+            imageView.setImageBitmap(bitmap);
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
+            StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+            StrictMode.setVmPolicy(builder.build());
+
+            bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+        }
 
         galleryButton = (Button) findViewById(R.id.galleryButton);
         galleryButton.setOnClickListener(galleryButtonListener);
@@ -216,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
         colourFilter = new Colour(bitmap);
     }
 
-    public boolean onCreateOptionsMenu(Menu menu) {
+   /* public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
         return true;
     }
@@ -229,5 +256,5 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return false;
         }
-    }
+    }*/
 }
