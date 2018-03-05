@@ -24,6 +24,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 import java.io.File;
@@ -38,8 +39,6 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap bitmap;
     private Bitmap originalBitmap;
     private ImageView imageView;
-    private Button galleryButton;
-    private Button cameraButton;
     private static final int REQUEST_IMAGE_GALLERY = 1;
     private static final int REQUEST_TAKE_PHOTO = 2;
 
@@ -133,17 +132,6 @@ public class MainActivity extends AppCompatActivity {
             point.set(x / 2, y / 2);
         }
 
-
-
-        private View.OnClickListener galleryButtonListener = new View.OnClickListener() {
-        public void onClick(View v) {
-            onImageGalleryClicked();
-        }
-    };
-
-    private View.OnClickListener cameraButtonListener = new View.OnClickListener() {
-        public void onClick(View v) { takePicture(); }
-    };
 
     private void takePicture() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -246,6 +234,9 @@ public class MainActivity extends AppCompatActivity {
     private void createFilters() {
         colourFilter = new Colour(bitmap);
         convolutionFilter = new Convolution(bitmap);
+        complexFilter = new ComplexFilter(bitmap);
+        contrastFilter = new Contrast(bitmap);
+        luminosityFilter = new Luminosity(bitmap);
     }
 
     @Override
@@ -268,12 +259,19 @@ public class MainActivity extends AppCompatActivity {
             bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
         }
 
-        galleryButton = (Button) findViewById(R.id.galleryButton);
-        galleryButton.setOnClickListener(galleryButtonListener);
-
-        cameraButton = (Button) findViewById(R.id.cameraButton);
-        cameraButton.setOnClickListener(cameraButtonListener);
         imageView.setOnTouchListener(handleTouch);
+        SeekBar hueBar = (SeekBar) findViewById(R.id.hueBar);
+        hueBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            public void onProgressChanged(SeekBar hBar, int hue, boolean fromUser) {
+                colourFilter.changeTint(hue);
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -282,20 +280,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
+
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(MainActivity.this);
         View mView = getLayoutInflater().inflate(R.layout.dialog_spinner, null);
         final Spinner mSpinner = (Spinner) mView.findViewById(R.id.spinner);
+        AlertDialog dialog;
+        ArrayAdapter<String> adapter;
+        String[] mArray;
+
         switch (item.getItemId()) {
+            case R.id.phototaking:
+                takePicture();
+                return true;
+            case R.id.gallery:
+                onImageGalleryClicked();
+                return true;
+            case R.id.changeTint:
+
             case R.id.averageBlurring:
                 mBuilder.setTitle("Amount of Blur desired");
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.amountBlur));
+                mArray = getResources().getStringArray(R.array.amountBlur);
+                adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 mSpinner.setAdapter(adapter);
                 mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        colourFilter.changeTint(320);
-                        //convolutionFilter.averageBlurring(mSpinner.getSelectedItemPosition());
+                        convolutionFilter.averageBlurring(mSpinner.getSelectedItemPosition());
                         dialogInterface.dismiss();
                     }
                 });
@@ -306,7 +317,30 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
                 mBuilder.setView(mView);
-                AlertDialog dialog = mBuilder.create();
+                dialog = mBuilder.create();
+                dialog.show();
+                return true;
+            case R.id.gaussianBlurring:
+                mBuilder.setTitle("Amount of Blur desired");
+                mArray = getResources().getStringArray(R.array.amountBlur);
+                adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                mSpinner.setAdapter(adapter);
+                mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        convolutionFilter.convolution(convolutionFilter.convolutionMatrix(2, mSpinner.getSelectedItemPosition()));
+                        dialogInterface.dismiss();
+                    }
+                });
+                mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+                mBuilder.setView(mView);
+                dialog = mBuilder.create();
                 dialog.show();
                 return true;
             default:

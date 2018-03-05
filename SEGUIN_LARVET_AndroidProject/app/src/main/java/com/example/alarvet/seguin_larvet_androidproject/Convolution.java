@@ -94,7 +94,7 @@ public class Convolution extends Filter {
     }
 
     // 1 = AverageBlur    2 = GaussianBlur    0/3 = Contouring    4 = Sharpening
-    private int[] ConvolutionMatrix (int cases , int dimension) {
+    public int[] convolutionMatrix (int cases , int dimension) {
         int[] res = new int[dimension*dimension];
         switch (cases) {
             case 0:
@@ -171,8 +171,8 @@ public class Convolution extends Filter {
         bmp.getPixels(pixelsf, 0, width, 0, 0, width, height);
         
         int matrixWidth = 2 * radius + 1;
-        int[] matrixConvo = ConvolutionMatrix(3, matrixWidth);
-        int[] matrixConvo1 = ConvolutionMatrix(0, matrixWidth);
+        int[] matrixConvo = convolutionMatrix(3, matrixWidth);
+        int[] matrixConvo1 = convolutionMatrix(0, matrixWidth);
         
         pixels = arrayOfGrayPixels(pixels, height, width);
         
