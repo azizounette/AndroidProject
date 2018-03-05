@@ -6,10 +6,13 @@
         android:id="@+id/phototaking"
         android:title="Take photo"
         app:showAsAction="always" />
-    <group app:showAsAction="always" />
     <item
         android:id="@+id/gallery"
         android:title="Image gallery"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/resetButton"
+        android:title="Reset"
         app:showAsAction="always" />
     <item
         android:id="@+id/changeTint"

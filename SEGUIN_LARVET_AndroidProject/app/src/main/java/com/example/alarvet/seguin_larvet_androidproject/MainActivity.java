@@ -49,6 +49,10 @@ public class MainActivity extends AppCompatActivity {
     private Convolution convolutionFilter;
     private Luminosity luminosityFilter;
 
+    private int hue = 0;
+    private float saturation = 1;
+    private float value = 1;
+
     private Uri fileSavePic;
 
     Matrix matrix = new Matrix();
@@ -164,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
         Uri data = Uri.parse(pictureDirectoryPath);
 
         picturePickedIntent.setDataAndType(data, "image/*");
-
+        System.out.println("HELLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
         startActivityForResult(picturePickedIntent, REQUEST_IMAGE_GALLERY);
     }
 
@@ -183,9 +187,11 @@ public class MainActivity extends AppCompatActivity {
                         originalBitmap = bitmapDrawable.getBitmap();
                     }
                     bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+                    createFilters();
                     break;
 
                 case REQUEST_IMAGE_GALLERY:
+                    System.out.println("BYEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
                     Uri imageUri = data.getData(); // address of image on SD card
 
                     InputStream inputStream; // stream to read the image data
@@ -260,10 +266,54 @@ public class MainActivity extends AppCompatActivity {
         }
 
         imageView.setOnTouchListener(handleTouch);
+
         SeekBar hueBar = (SeekBar) findViewById(R.id.hueBar);
         hueBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            public void onProgressChanged(SeekBar hBar, int hue, boolean fromUser) {
-                colourFilter.changeTint(hue);
+            public void onProgressChanged(SeekBar hBar, int progress, boolean fromUser) {
+                hue = progress;
+                colourFilter.changeTint(hue, saturation, value);
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+
+        SeekBar saturationBar = (SeekBar) findViewById(R.id.saturationBar);
+        saturationBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            public void onProgressChanged(SeekBar saturationBar, int progress, boolean fromUser) {
+                saturation = progress;
+                colourFilter.changeTint(hue, saturation, value);
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+
+        SeekBar valueBar = (SeekBar) findViewById(R.id.valueBar);
+        valueBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            public void onProgressChanged(SeekBar valueBar, int progress, boolean fromUser) {
+                value = progress;
+                colourFilter.changeTint(hue, saturation, value);
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+
+        SeekBar contrastBar = (SeekBar) findViewById(R.id.valueBar);
+        contrastBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            public void onProgressChanged(SeekBar hBar, int progress, boolean fromUser) {
+                value = progress;
+                colourFilter.changeTint(hue, saturation, value);
             }
 
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -289,14 +339,64 @@ public class MainActivity extends AppCompatActivity {
         String[] mArray;
 
         switch (item.getItemId()) {
+            case R.id.resetButton:
+                bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+                imageView.setImageBitmap(bitmap);
+                createFilters();
+                return true;
             case R.id.phototaking:
                 takePicture();
                 return true;
             case R.id.gallery:
                 onImageGalleryClicked();
                 return true;
+            case R.id.luminosityChange:
+                return true;
+            case R.id.overexposure:
+                luminosityFilter.overexposure();
+            case R.id.magicWand:
+                return true;
+            case R.id.warmthChange:
+                return true;
+            case R.id.contrastChange:
+                return true;
+            case R.id.equalizeColors:
+                contrastFilter.equalizeColors();
+                return true;
+            case R.id.equalizeGray:
+                contrastFilter.equalizeGray();
+                return true;
+            case R.id.sepia:
+                colourFilter.sepia();
+                return true;
+            case R.id.grayAndTint:
+                mBuilder.setTitle("Choose the hue of the color wanted");
+                mArray = getResources().getStringArray(R.array.colorHue);
+                adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                mSpinner.setAdapter(adapter);
+                mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        colourFilter.grayAndTint(10*mSpinner.getSelectedItemPosition());
+                        dialogInterface.dismiss();
+                    }
+                });
+                mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+                mBuilder.setView(mView);
+                dialog = mBuilder.create();
+                dialog.show();
+                return true;
+            case R.id.toGray:
+                colourFilter.toGray();
+                return true;
             case R.id.changeTint:
-
+                return true;
             case R.id.averageBlurring:
                 mBuilder.setTitle("Amount of Blur desired");
                 mArray = getResources().getStringArray(R.array.amountBlur);

@@ -29,11 +29,34 @@
         android:layout_width="298dp"
         android:layout_height="14dp"
         android:max="200"
+        android:progress="200"
+        android:layout_marginBottom="20dp"
+        tools:layout_editor_absoluteX="43dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:progress="200"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <SeekBar
+        android:id="@+id/saturationBar"
+        android:layout_width="298dp"
+        android:layout_height="14dp"
+        android:max="100"
+        android:progress="100"
+        android:layout_marginBottom="20dp"
         tools:layout_editor_absoluteX="43dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="20dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/hueBar" />
+    <SeekBar
+        android:id="@+id/valueBar"
+        android:layout_width="298dp"
+        android:layout_height="14dp"
+        android:max="100"
+        android:progress="100"
+        android:layout_marginBottom="20dp"
+        tools:layout_editor_absoluteX="43dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/saturationBar" />
 
 </android.support.constraint.ConstraintLayout>

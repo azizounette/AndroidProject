@@ -13,7 +13,7 @@ public class Colour extends Filter {
         super(bmp);
     }
 
-    /*TODO
+
     public void toGray() {
         Bitmap bmp = this.getBmp();
 
@@ -24,7 +24,7 @@ public class Colour extends Filter {
             pixels[i] = Color.rgb(gray, gray, gray);
         }
         bmp.setPixels(pixels, 0, width, 0, 0, width, height);
-    }*/
+    }
 
     public void grayAndTint(int tint) {
         Bitmap bmp = this.getBmp();
@@ -44,15 +44,18 @@ public class Colour extends Filter {
         bmp.setPixels(pixels, 0, width, 0, 0, width, height);
     }
 
-    public void changeTint(int tint) {
+    public void changeTint(int tint, float saturation, float value) {
         Bitmap bmp = this.getBmp();
         int pixels[] = new int[width*height];
         bmp.getPixels(pixels, 0, width, 0, 0, width, height);
-        for (int i = 0; i < width*height; i++) {
-            float[] hsv = new float[3];
-            Color.colorToHSV(pixels[i], hsv);
-            hsv[0] = tint;
-            pixels[i] = Color.HSVToColor(hsv);
+        float[] hsv = new float[3];
+        hsv[0] = tint;
+        hsv[1] = saturation;
+        hsv[2] = value;
+        int tintrgb = Color.HSVToColor(hsv);
+        for (int i = 0; i < height*width; i++) {
+            int w = (int) (0.11 * Color.blue(pixels[i]) + 0.3 * Color.red(pixels[i]) + 0.59 * Color.green(pixels[i]));
+            pixels[i] = Color.rgb(Color.red(tintrgb)*w/255, Color.green(tintrgb)*w/255, Color.blue(tintrgb)*w/255);
         }
         bmp.setPixels(pixels, 0, width, 0, 0, width, height);
     }
