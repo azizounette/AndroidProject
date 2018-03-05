@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imageView;
     private Button galleryButton;
     private Button cameraButton;
-    private static final int IMAGE_GALLERY_REQUEST = 1;
+    private static final int REQUEST_IMAGE_GALLERY = 1;
     private static final int REQUEST_TAKE_PHOTO = 2;
 
     //Variables used for applying filters to the image
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
     float oldDist = 1f;
 
 
-    // Variable used for saving
+    // Variable used for saving the bitmap before an orientation change
     private static final String SAVE_BMP = "SaveBitmap";
 
 
@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
                     start.set(event.getX(), event.getY());
                     mode = DRAG;
                     break;
+
                 case MotionEvent.ACTION_POINTER_DOWN:
                     oldDist = spacing(event);
                     if (oldDist > 10f) {
@@ -84,12 +85,15 @@ public class MainActivity extends AppCompatActivity {
                         mode = ZOOM;
                     }
                     break;
+
                 case MotionEvent.ACTION_POINTER_UP:
                     mode = NONE;
                     break;
+
                 case MotionEvent.ACTION_UP:
                     mode = NONE;
                     break;
+
                 case MotionEvent.ACTION_MOVE:
                     if (mode == DRAG) {
                         matrix.set(savedMatrix);
@@ -110,14 +114,14 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-        /** Determine the space between the first two fingers */
+        /** Computes the space between the first two fingers */
         private float spacing(MotionEvent event) {
             float x = event.getX(0) - event.getX(1);
             float y = event.getY(0) - event.getY(1);
             return (float)Math.sqrt(x * x + y * y);
         }
 
-        /** Calculate the mid point of the first two fingers */
+        /** Computes the mid point of the first two fingers */
         private void midPoint(PointF point, MotionEvent event) {
             float x = event.getX(0) + event.getX(1);
             float y = event.getY(0) + event.getY(1);
@@ -147,12 +151,10 @@ public class MainActivity extends AppCompatActivity {
 
     private static File getOutputMediaFile(){
         File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "Camera");
+                Environment.DIRECTORY_PICTURES), "CameraFromApp");
 
-        if (!mediaStorageDir.exists()){
-            if (!mediaStorageDir.mkdirs()){
-                return null;
-            }
+        if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
+            return null;
         }
 
         String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmmss").format(new Date());
@@ -170,41 +172,39 @@ public class MainActivity extends AppCompatActivity {
 
         picturePickedIntent.setDataAndType(data, "image/*");
 
-        startActivityForResult(picturePickedIntent, IMAGE_GALLERY_REQUEST);
+        startActivityForResult(picturePickedIntent, REQUEST_IMAGE_GALLERY);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
-            imageView.setImageURI(fileSavePic);
-            BitmapDrawable bitmapDrawable = ((BitmapDrawable) imageView.getDrawable());
-            if(bitmapDrawable==null){
-                imageView.buildDrawingCache();
-                bitmap = imageView.getDrawingCache();
-                imageView.buildDrawingCache(false);
-            }else
-            {
-                bitmap = bitmapDrawable .getBitmap();
-            }
-        }
+        if (resultCode == RESULT_OK){
+            switch(requestCode){
+                case REQUEST_TAKE_PHOTO:
+                    imageView.setImageURI(fileSavePic);
+                    BitmapDrawable bitmapDrawable = ((BitmapDrawable) imageView.getDrawable());
+                    if(bitmapDrawable == null){
+                        imageView.buildDrawingCache();
+                        bitmap = imageView.getDrawingCache();
+                        imageView.buildDrawingCache(false);
+                    } else{
+                        bitmap = bitmapDrawable.getBitmap();
+                    }
+                    break;
 
-        if (requestCode == IMAGE_GALLERY_REQUEST) {
-            //success
-            if (resultCode == RESULT_OK) {
-                // hearing from image gallery
-                Uri imageUri = data.getData(); // address of image on SD card
+                case REQUEST_IMAGE_GALLERY:
+                    Uri imageUri = data.getData(); // address of image on SD card
 
-                InputStream inputStream; // stream to read the image data
-                try {
-                    inputStream = getContentResolver().openInputStream(imageUri);
-                    originalBitmap = BitmapFactory.decodeStream(inputStream);
-                    bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
-                    imageView.setImageBitmap(bitmap);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                    Toast.makeText(this, "Impossible to open the image", Toast.LENGTH_LONG).show();
-                }
-
+                    InputStream inputStream; // stream to read the image data
+                    try {
+                        inputStream = getContentResolver().openInputStream(imageUri);
+                        originalBitmap = BitmapFactory.decodeStream(inputStream);
+                        bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+                        imageView.setImageBitmap(bitmap);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                        Toast.makeText(this, "Impossible to open the image", Toast.LENGTH_LONG).show();
+                    }
+                    break;
             }
         }
     }
