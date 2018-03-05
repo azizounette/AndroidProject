@@ -24,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -206,6 +207,27 @@ public class MainActivity extends AppCompatActivity {
                     }
                     break;
             }
+        }
+    }
+
+    protected void saveImage(){
+        BitmapDrawable draw = (BitmapDrawable) imageView.getDrawable();
+        Bitmap bitmap = draw.getBitmap();
+
+        FileOutputStream fos;
+        File sdCard = Environment.getExternalStorageDirectory();
+        File dir = new File(sdCard.getAbsolutePath() + "/ImagesFromApp");
+        dir.mkdirs();
+        String fileName = String.format("%d.jpg", System.currentTimeMillis());
+        File outFile = new File(dir, fileName);
+        try {
+            fos = new FileOutputStream(outFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            fos.flush();
+            fos.close();
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Impossible to save the image", Toast.LENGTH_LONG).show();
         }
     }
 
