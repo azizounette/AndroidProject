@@ -3,6 +3,7 @@ package com.example.alarvet.seguin_larvet_androidproject;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -12,7 +13,9 @@ import android.net.Uri;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -39,12 +42,19 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap bitmap;
     private Bitmap appliedBitmap;
     private Bitmap originalBitmap;
+    private Menu menu;
+    private Button saveButton;
     private static final int MAX_BITMAP_WIDTH = 1000;
     private static final int MAX_BITMAP_HEIGHT = 1000;
 
     private ImageView imageView;
     private static final int REQUEST_IMAGE_GALLERY = 1;
     private static final int REQUEST_TAKE_PHOTO = 2;
+
+    //Variables used for permissions
+    private boolean canTakePicture =  false;
+    private boolean canSave = false;
+    private boolean canPickFromGallery = false;
 
     //Variables used for applying filters to the image
     private Colour colourFilter;
@@ -292,6 +302,32 @@ public class MainActivity extends AppCompatActivity {
         luminosityFilter = new Luminosity(bitmap);
     }
 
+    private void checkPermissions() {
+        String[] permissions = new String[]{Manifest.permission.CAMERA,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE};
+
+        ActivityCompat.requestPermissions(this,permissions, 0);
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+
+        if (ContextCompat.checkSelfPermission(this, permissions[0]) == PackageManager.PERMISSION_DENIED){
+            canTakePicture = false;
+        } else {
+            canTakePicture = true;
+        }
+        if (ContextCompat.checkSelfPermission(this, permissions[1]) == PackageManager.PERMISSION_DENIED){
+            canSave = false;
+        } else {
+            canSave = true;
+        }
+        if (ContextCompat.checkSelfPermission(this, permissions[2]) == PackageManager.PERMISSION_DENIED){
+            canPickFromGallery = false;
+        } else {
+            canPickFromGallery = true;
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -305,10 +341,7 @@ public class MainActivity extends AppCompatActivity {
             bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
             imageView.setImageBitmap(bitmap);
         } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
-            StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-            StrictMode.setVmPolicy(builder.build());
-
+            checkPermissions();
             originalBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
             appliedBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
             bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
@@ -435,9 +468,11 @@ public class MainActivity extends AppCompatActivity {
 
         setBarVisibility(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
 
-        Button saveButton = (Button) findViewById(R.id.saveButton);
+        saveButton = (Button) findViewById(R.id.saveButton);
         saveButton.setOnClickListener(resetButtonListener);
-
+        if (!canSave) {
+            saveButton.setVisibility(View.INVISIBLE);
+        }
     }
 
     private void resetBitmap(){
@@ -474,7 +509,9 @@ public class MainActivity extends AppCompatActivity {
 
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
-        menu.getItem(2).setVisible(false);
+        menu.getItem(0).setVisible(canTakePicture);
+        menu.getItem(1).setVisible(canPickFromGallery);
+        this.menu = menu;
         return true;
     }
 
