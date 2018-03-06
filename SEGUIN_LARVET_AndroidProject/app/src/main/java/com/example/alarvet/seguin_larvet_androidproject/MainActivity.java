@@ -137,13 +137,23 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-    private void takePicture() {
+    private void clearBitmap(){
+        imageView.setImageResource(R.mipmap.ic_launcher);
+        bitmap.recycle();
+        bitmap = null;
+
+        originalBitmap.recycle();
+        originalBitmap = null;
+    }
+
+    private void takePicture(){
+        clearBitmap();
+
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         fileSavePic = Uri.fromFile(getOutputMediaFile());
         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileSavePic);
 
         startActivityForResult(intent, REQUEST_TAKE_PHOTO);
-
     }
 
     private static File getOutputMediaFile(){
@@ -160,6 +170,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onImageGalleryClicked() {
+        clearBitmap();
+
         Intent picturePickedIntent = new Intent(Intent.ACTION_PICK);
 
         File pictureDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_ALARMS);
@@ -173,6 +185,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
         if (resultCode == RESULT_OK){
             switch(requestCode){
                 case REQUEST_TAKE_PHOTO:
