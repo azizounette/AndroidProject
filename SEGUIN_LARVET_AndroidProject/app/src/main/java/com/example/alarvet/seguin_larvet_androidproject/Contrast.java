@@ -81,7 +81,7 @@ public class Contrast extends Filter {
         }
         bmp.setPixels(pixels, 0, width,  0, 0, width, height);
     }
-    //TODO Value between -64 and 64
+    //TODO Value between -128 and 128
     public void warmthChange (float value) {
         Bitmap bmp = this.getBmp();
         int[] pixels = new int[width * height];

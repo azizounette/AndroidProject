@@ -37,6 +37,7 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity {
 
     private Bitmap bitmap;
+    private Bitmap appliedBitmap;
     private Bitmap originalBitmap;
     private ImageView imageView;
     private static final int REQUEST_IMAGE_GALLERY = 1;
@@ -52,6 +53,14 @@ public class MainActivity extends AppCompatActivity {
     private int hue = 0;
     private float saturation = 1;
     private float value = 1;
+    private SeekBar hueBar;
+    private SeekBar saturationBar;
+    private SeekBar valueBar;
+    private SeekBar contrastBar;
+    private SeekBar luminosityBar;
+    private SeekBar magicWandBar;
+    private SeekBar warmthBar;
+    private SeekBar warholBar;
 
     private Uri fileSavePic;
 
@@ -200,6 +209,7 @@ public class MainActivity extends AppCompatActivity {
                         originalBitmap = bitmapDrawable.getBitmap();
                     }
                     bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+                    appliedBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
                     createFilters();
                     break;
 
@@ -211,6 +221,7 @@ public class MainActivity extends AppCompatActivity {
                         inputStream = getContentResolver().openInputStream(imageUri);
                         originalBitmap = BitmapFactory.decodeStream(inputStream);
                         bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+                        appliedBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
                         imageView.setImageBitmap(bitmap);
                         createFilters();
                     } catch (FileNotFoundException e) {
@@ -266,6 +277,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedInstanceState != null) {
             originalBitmap = savedInstanceState.getParcelable(SAVE_BMP);
+            appliedBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
             bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
             imageView.setImageBitmap(bitmap);
         } else {
@@ -274,14 +286,16 @@ public class MainActivity extends AppCompatActivity {
             StrictMode.setVmPolicy(builder.build());
 
             originalBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+            appliedBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
             bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
         }
 
         imageView.setOnTouchListener(handleTouch);
 
-        SeekBar hueBar = (SeekBar) findViewById(R.id.hueBar);
+        hueBar = (SeekBar) findViewById(R.id.hueBar);
         hueBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             public void onProgressChanged(SeekBar hBar, int progress, boolean fromUser) {
+                resetAppliedBitmap();
                 hue = progress;
                 colourFilter.changeTint(hue, saturation, value);
             }
@@ -293,10 +307,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        SeekBar saturationBar = (SeekBar) findViewById(R.id.saturationBar);
+        saturationBar = (SeekBar) findViewById(R.id.saturationBar);
         saturationBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             public void onProgressChanged(SeekBar saturationBar, int progress, boolean fromUser) {
-                saturation = progress;
+                resetAppliedBitmap();
+                saturation = (float) progress/100;
                 colourFilter.changeTint(hue, saturation, value);
             }
 
@@ -307,10 +322,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        SeekBar valueBar = (SeekBar) findViewById(R.id.valueBar);
+        valueBar = (SeekBar) findViewById(R.id.valueBar);
         valueBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             public void onProgressChanged(SeekBar valueBar, int progress, boolean fromUser) {
-                value = progress;
+                resetAppliedBitmap();
+                value = (float) progress/100;
                 colourFilter.changeTint(hue, saturation, value);
             }
 
@@ -321,11 +337,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        SeekBar contrastBar = (SeekBar) findViewById(R.id.valueBar);
+        contrastBar = (SeekBar) findViewById(R.id.contrastBar);
         contrastBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            public void onProgressChanged(SeekBar hBar, int progress, boolean fromUser) {
-                value = progress;
-                colourFilter.changeTint(hue, saturation, value);
+            public void onProgressChanged(SeekBar contrastBar, int progress, boolean fromUser) {
+                resetAppliedBitmap();
+                contrastFilter.contrastChange(progress-128);
             }
 
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -334,6 +350,94 @@ public class MainActivity extends AppCompatActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
+
+        luminosityBar = (SeekBar) findViewById(R.id.luminosityBar);
+        luminosityBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            public void onProgressChanged(SeekBar luminosityBar, int progress, boolean fromUser) {
+                resetAppliedBitmap();
+                luminosityFilter.luminosityChange(progress-100);
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+
+        magicWandBar = (SeekBar) findViewById(R.id.magicWandBar);
+        magicWandBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            public void onProgressChanged(SeekBar magicWandBar, int progress, boolean fromUser) {
+                resetAppliedBitmap();
+                contrastFilter.magicWand(progress-100);
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+
+        warmthBar = (SeekBar) findViewById(R.id.warmthBar);
+        warmthBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            public void onProgressChanged(SeekBar warmthBar, int progress, boolean fromUser) {
+                resetAppliedBitmap();
+                contrastFilter.warmthChange(progress-100);
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+
+        warholBar = (SeekBar) findViewById(R.id.warholBar);
+        warholBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            public void onProgressChanged(SeekBar warholBar, int progress, boolean fromUser) {
+                resetAppliedBitmap();
+                complexFilter.warhol(progress);
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+
+        setBarVisibility(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+    }
+
+    private void resetBitmap(){
+        bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+        appliedBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+        imageView.setImageBitmap(bitmap);
+        createFilters();
+    }
+
+    private void resetAppliedBitmap(){
+        bitmap = appliedBitmap.copy(appliedBitmap.getConfig(), true);
+        imageView.setImageBitmap(bitmap);
+        createFilters();
+    }
+
+    public void setBarVisibility(int v1, int v2, int v3, int v4, int v5, int v6, int v7, int v8){
+        hueBar.setVisibility(v1);
+        saturationBar.setVisibility(v2);
+        valueBar.setVisibility(v3);
+        contrastBar.setVisibility(v4);
+        luminosityBar.setVisibility(v5);
+        magicWandBar.setVisibility(v6);
+        warmthBar.setVisibility(v7);
+        warholBar.setVisibility(v8);
+    }
+
+    public void onFilterCalled (int v1, int v2, int v3, int v4, int v5, int v6, int v7, int v8) {
+        setBarVisibility(v1,v2,v3,v4,v5,v6,v7,v8);
+        resetAppliedBitmap();
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -351,10 +455,11 @@ public class MainActivity extends AppCompatActivity {
         String[] mArray;
 
         switch (item.getItemId()) {
+            case R.id.applyButton:
+                appliedBitmap = bitmap.copy(bitmap.getConfig(),true);
+                return true;
             case R.id.resetButton:
-                bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
-                imageView.setImageBitmap(bitmap);
-                createFilters();
+                resetBitmap();
                 return true;
             case R.id.phototaking:
                 takePicture();
@@ -362,26 +467,75 @@ public class MainActivity extends AppCompatActivity {
             case R.id.gallery:
                 onImageGalleryClicked();
                 return true;
+            case R.id.cartoon:
+                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+                mBuilder.setTitle("Amount of Blur desired");
+                mArray = getResources().getStringArray(R.array.threshold);
+                adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                mSpinner.setAdapter(adapter);
+                mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        complexFilter.cartoon(mSpinner.getSelectedItemPosition());
+                        dialogInterface.dismiss();
+                    }
+                });
+                mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+                mBuilder.setView(mView);
+                dialog = mBuilder.create();
+                dialog.show();
+                return true;
+            case R.id.warhol:
+                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.VISIBLE);
+                return true;
+            case R.id.sharpening:
+                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+                convolutionFilter.convolution(convolutionFilter.convolutionMatrix(4,1));
+                return true;
+            case R.id.laplacien:
+                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+                convolutionFilter.laplacien();
+                return true;
+            case R.id.contouring:
+                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+                convolutionFilter.contouring();
+                return true;
             case R.id.luminosityChange:
+                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.VISIBLE,View.GONE,View.GONE,View.GONE);
                 return true;
             case R.id.overexposure:
+                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
                 luminosityFilter.overexposure();
+                return true;
             case R.id.magicWand:
+                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.VISIBLE,View.GONE);
                 return true;
             case R.id.warmthChange:
+                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.VISIBLE,View.GONE,View.GONE);
                 return true;
             case R.id.contrastChange:
+                onFilterCalled(View.GONE,View.GONE,View.GONE,View.VISIBLE,View.GONE,View.GONE,View.GONE,View.GONE);
                 return true;
             case R.id.equalizeColors:
+                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
                 contrastFilter.equalizeColors();
                 return true;
             case R.id.equalizeGray:
+                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
                 contrastFilter.equalizeGray();
                 return true;
             case R.id.sepia:
+                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
                 colourFilter.sepia();
                 return true;
             case R.id.grayAndTint:
+                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
                 mBuilder.setTitle("Choose the hue of the color wanted");
                 mArray = getResources().getStringArray(R.array.colorHue);
                 adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
@@ -405,11 +559,14 @@ public class MainActivity extends AppCompatActivity {
                 dialog.show();
                 return true;
             case R.id.toGray:
+                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
                 colourFilter.toGray();
                 return true;
             case R.id.changeTint:
+                onFilterCalled(View.VISIBLE,View.VISIBLE,View.VISIBLE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
                 return true;
             case R.id.averageBlurring:
+                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
                 mBuilder.setTitle("Amount of Blur desired");
                 mArray = getResources().getStringArray(R.array.amountBlur);
                 adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
@@ -433,6 +590,7 @@ public class MainActivity extends AppCompatActivity {
                 dialog.show();
                 return true;
             case R.id.gaussianBlurring:
+                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
                 mBuilder.setTitle("Amount of Blur desired");
                 mArray = getResources().getStringArray(R.array.amountBlur);
                 adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);

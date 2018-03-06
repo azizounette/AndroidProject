@@ -28,8 +28,8 @@
         android:id="@+id/hueBar"
         android:layout_width="298dp"
         android:layout_height="14dp"
-        android:max="200"
-        android:progress="200"
+        android:max="360"
+        android:progress="360"
         android:layout_marginBottom="20dp"
         tools:layout_editor_absoluteX="43dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -47,6 +47,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@id/hueBar" />
+
     <SeekBar
         android:id="@+id/valueBar"
         android:layout_width="298dp"
@@ -58,5 +59,65 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@id/saturationBar" />
+
+    <SeekBar
+        android:id="@+id/contrastBar"
+        android:layout_width="298dp"
+        android:layout_height="14dp"
+        android:max="256"
+        android:progress="256"
+        android:layout_marginBottom="20dp"
+        tools:layout_editor_absoluteX="43dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/valueBar" />
+
+    <SeekBar
+        android:id="@+id/luminosityBar"
+        android:layout_width="298dp"
+        android:layout_height="14dp"
+        android:max="128"
+        android:progress="128"
+        android:layout_marginBottom="20dp"
+        tools:layout_editor_absoluteX="43dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/contrastBar" />
+
+    <SeekBar
+        android:id="@+id/magicWandBar"
+        android:layout_width="298dp"
+        android:layout_height="14dp"
+        android:max="200"
+        android:progress="200"
+        android:layout_marginBottom="20dp"
+        tools:layout_editor_absoluteX="43dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/luminosityBar" />
+
+    <SeekBar
+        android:id="@+id/warmthBar"
+        android:layout_width="298dp"
+        android:layout_height="14dp"
+        android:max="256"
+        android:progress="256"
+        android:layout_marginBottom="20dp"
+        tools:layout_editor_absoluteX="43dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/magicWandBar" />
+
+    <SeekBar
+        android:id="@+id/warholBar"
+        android:layout_width="298dp"
+        android:layout_height="14dp"
+        android:max="255"
+        android:progress="255"
+        android:layout_marginBottom="20dp"
+        tools:layout_editor_absoluteX="43dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/warmthBar" />
 
 </android.support.constraint.ConstraintLayout>

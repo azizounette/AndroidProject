@@ -161,8 +161,10 @@ public class Convolution extends Filter {
         bmp.setPixels(pixelsf, 0, width,  0, 0, width, height);
     }
 
-    public void contouring (int radius) {
+    public void contouring () {
         Bitmap bmp = this.getBmp();
+
+        final int radius = 1;
         
         int[] pixels = new int[width * height];
         int[] pixelsf = new int[width * height];

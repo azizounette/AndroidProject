@@ -15,6 +15,10 @@
         android:title="Reset"
         app:showAsAction="always" />
     <item
+        android:id="@+id/applyButton"
+        android:title="Apply"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/changeTint"
         android:title="Add color filter"
         app:showAsAction="never" />
