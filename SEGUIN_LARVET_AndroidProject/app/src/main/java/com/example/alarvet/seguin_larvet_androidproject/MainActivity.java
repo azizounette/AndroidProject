@@ -39,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap bitmap;
     private Bitmap appliedBitmap;
     private Bitmap originalBitmap;
+    private static final int MAX_BITMAP_WIDTH = 1000;
+    private static final int MAX_BITMAP_HEIGHT = 1000;
+
     private ImageView imageView;
     private static final int REQUEST_IMAGE_GALLERY = 1;
     private static final int REQUEST_TAKE_PHOTO = 2;
@@ -151,8 +154,22 @@ public class MainActivity extends AppCompatActivity {
         bitmap.recycle();
         bitmap = null;
 
+        appliedBitmap.recycle();
+        appliedBitmap = null;
+
         originalBitmap.recycle();
         originalBitmap = null;
+    }
+
+    public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        int max = Math.max(width, height);
+        int newW = (width * newWidth) / max;
+        int newH = (height * newHeight) / max;
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(
+                bm, newW, newH, false);
+        return resizedBitmap;
     }
 
     private void takePicture(){
@@ -204,12 +221,15 @@ public class MainActivity extends AppCompatActivity {
                     if(bitmapDrawable == null){
                         imageView.buildDrawingCache();
                         originalBitmap = imageView.getDrawingCache();
+                        originalBitmap = getResizedBitmap(originalBitmap, MAX_BITMAP_WIDTH, MAX_BITMAP_HEIGHT);
                         imageView.buildDrawingCache(false);
                     } else{
                         originalBitmap = bitmapDrawable.getBitmap();
+                        originalBitmap = getResizedBitmap(originalBitmap, MAX_BITMAP_WIDTH, MAX_BITMAP_HEIGHT);
                     }
-                    bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
                     appliedBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+                    bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+                    imageView.setImageBitmap(bitmap);
                     createFilters();
                     break;
 
@@ -220,8 +240,9 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         inputStream = getContentResolver().openInputStream(imageUri);
                         originalBitmap = BitmapFactory.decodeStream(inputStream);
-                        bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+                        originalBitmap = getResizedBitmap(originalBitmap, MAX_BITMAP_WIDTH, MAX_BITMAP_HEIGHT);
                         appliedBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+                        bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
                         imageView.setImageBitmap(bitmap);
                         createFilters();
                     } catch (FileNotFoundException e) {
@@ -288,6 +309,7 @@ public class MainActivity extends AppCompatActivity {
             originalBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
             appliedBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
             bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+            imageView.setImageBitmap(bitmap);
         }
 
         imageView.setOnTouchListener(handleTouch);
@@ -409,17 +431,20 @@ public class MainActivity extends AppCompatActivity {
         });
 
         setBarVisibility(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+
+        Button saveButton = (Button) findViewById(R.id.saveButton);
+        saveButton.setOnClickListener(resetButtonListener);
+
     }
 
     private void resetBitmap(){
         bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
-        appliedBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
         imageView.setImageBitmap(bitmap);
         createFilters();
     }
 
-    private void resetAppliedBitmap(){
-        bitmap = appliedBitmap.copy(appliedBitmap.getConfig(), true);
+    private void resetAppliedBitmap () {
+        bitmap = appliedBitmap.copy(originalBitmap.getConfig(), true);
         imageView.setImageBitmap(bitmap);
         createFilters();
     }
@@ -435,6 +460,10 @@ public class MainActivity extends AppCompatActivity {
         warholBar.setVisibility(v8);
     }
 
+    private View.OnClickListener resetButtonListener = new View.OnClickListener(){
+        public void onClick(View v) {saveImage();}
+    };
+
     public void onFilterCalled (int v1, int v2, int v3, int v4, int v5, int v6, int v7, int v8) {
         setBarVisibility(v1,v2,v3,v4,v5,v6,v7,v8);
         resetAppliedBitmap();
@@ -442,6 +471,7 @@ public class MainActivity extends AppCompatActivity {
 
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
+        menu.getItem(2).setVisible(false);
         return true;
     }
 
@@ -456,7 +486,7 @@ public class MainActivity extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case R.id.applyButton:
-                appliedBitmap = bitmap.copy(bitmap.getConfig(),true);
+                appliedBitmap = bitmap.copy(bitmap.getConfig(), true);
                 return true;
             case R.id.resetButton:
                 resetBitmap();
@@ -496,7 +526,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.sharpening:
                 onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                convolutionFilter.convolution(convolutionFilter.convolutionMatrix(4,1));
+                convolutionFilter.convolution(convolutionFilter.convolutionMatrix(4,3));
                 return true;
             case R.id.laplacien:
                 onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);

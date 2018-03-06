@@ -2,6 +2,7 @@ package com.example.alarvet.seguin_larvet_androidproject;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.util.Log;
 
 /**
  * Created by Aziza on 03/02/2018.

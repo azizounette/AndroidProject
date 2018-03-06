@@ -2,6 +2,7 @@
     <string name="app_name">SEGUIN_LARVET_AndroidProject</string>
 
     <string name="imageView">Space dedicated to the picture</string>
+    <string name="savePic">Save Picture</string>
     <string name="galleryButton">Gallery</string>
     <string name="cameraButton">Camera</string>
 

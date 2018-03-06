@@ -8,7 +8,7 @@
         app:showAsAction="always" />
     <item
         android:id="@+id/gallery"
-        android:title="Image gallery"
+        android:title="Gallery"
         app:showAsAction="always" />
     <item
         android:id="@+id/resetButton"
