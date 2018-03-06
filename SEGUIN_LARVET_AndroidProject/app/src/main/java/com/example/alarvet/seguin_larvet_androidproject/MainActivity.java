@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static File getOutputMediaFile(){
         File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "CameraFromApp");
+                Environment.DIRECTORY_PICTURES), "SEGUIN_LARVET");
 
         if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
             return null;
@@ -255,23 +255,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void saveImage(){
-        BitmapDrawable draw = (BitmapDrawable) imageView.getDrawable();
-        Bitmap bitmap = draw.getBitmap();
+        String root = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "SEGUIN_LARVET").toString();
+        File myDir = new File(root);
+        myDir.mkdirs();
 
-        FileOutputStream fos;
-        File sdCard = Environment.getExternalStorageDirectory();
-        File dir = new File(sdCard.getAbsolutePath() + "/ImagesFromApp");
-        dir.mkdirs();
-        String fileName = String.format("%d.jpg", System.currentTimeMillis());
-        File outFile = new File(dir, fileName);
+        String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmmss").format(new Date());
+
+        String imageName = "IMG-" + timeStamp+ ".jpg";
+        File file = new File(myDir, imageName);
+        if (file.exists()){
+            file.delete();
+        }
+
         try {
-            fos = new FileOutputStream(outFile);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-            fos.flush();
-            fos.close();
-        } catch (java.io.IOException e) {
+            FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, "Impossible to save the image", Toast.LENGTH_LONG).show();
         }
     }
 
