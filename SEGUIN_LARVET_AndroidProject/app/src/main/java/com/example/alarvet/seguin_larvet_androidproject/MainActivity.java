@@ -42,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap bitmap;
     private Bitmap appliedBitmap;
     private Bitmap originalBitmap;
-    private Menu menu;
     private Button saveButton;
     private static final int MAX_BITMAP_WIDTH = 1000;
     private static final int MAX_BITMAP_HEIGHT = 1000;
@@ -95,238 +94,6 @@ public class MainActivity extends AppCompatActivity {
     // Variable used for saving the bitmap before an orientation change
     private static final String SAVE_BMP = "SaveBitmap";
 
-
-    View.OnTouchListener handleTouch = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-
-            switch (event.getActionMasked()) {
-                case MotionEvent.ACTION_DOWN:
-                    savedMatrix.set(matrix);
-                    start.set(event.getX(), event.getY());
-                    mode = DRAG;
-                    break;
-
-                case MotionEvent.ACTION_POINTER_DOWN:
-                    oldDist = spacing(event);
-                    if (oldDist > 10f) {
-                        savedMatrix.set(matrix);
-                        midPoint(mid, event);
-                        mode = ZOOM;
-                    }
-                    break;
-
-                case MotionEvent.ACTION_POINTER_UP:
-                    mode = NONE;
-                    break;
-
-                case MotionEvent.ACTION_UP:
-                    mode = NONE;
-                    break;
-
-                case MotionEvent.ACTION_MOVE:
-                    if (mode == DRAG) {
-                        matrix.set(savedMatrix);
-                        matrix.postTranslate(event.getX() - start.x, event.getY()
-                                - start.y);
-                    } else if (mode == ZOOM) {
-                        float newDist = spacing(event);
-                        if (newDist > 10f) {
-                            matrix.set(savedMatrix);
-                            float scale = newDist / oldDist;
-                            matrix.postScale(scale, scale, mid.x, mid.y);
-                        }
-                    }
-                    break;
-            }
-            imageView.setImageMatrix(matrix);
-            return true;
-        }
-    };
-
-        /** Computes the space between the first two fingers */
-        private float spacing(MotionEvent event) {
-            float x = event.getX(0) - event.getX(1);
-            float y = event.getY(0) - event.getY(1);
-            return (float)Math.sqrt(x * x + y * y);
-        }
-
-        /** Computes the mid point of the first two fingers */
-        private void midPoint(PointF point, MotionEvent event) {
-            float x = event.getX(0) + event.getX(1);
-            float y = event.getY(0) + event.getY(1);
-            point.set(x / 2, y / 2);
-        }
-
-
-    private void clearBitmap(){
-        imageView.setImageResource(R.mipmap.ic_launcher);
-        bitmap.recycle();
-        bitmap = null;
-
-        appliedBitmap.recycle();
-        appliedBitmap = null;
-
-        originalBitmap.recycle();
-        originalBitmap = null;
-    }
-
-    public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
-        int width = bm.getWidth();
-        int height = bm.getHeight();
-        int max = Math.max(width, height);
-        int newW = (width * newWidth) / max;
-        int newH = (height * newHeight) / max;
-        Bitmap resizedBitmap = Bitmap.createScaledBitmap(
-                bm, newW, newH, false);
-        return resizedBitmap;
-    }
-
-    private void takePicture(){
-        clearBitmap();
-
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        fileSavePic = Uri.fromFile(getOutputMediaFile());
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileSavePic);
-
-        startActivityForResult(intent, REQUEST_TAKE_PHOTO);
-    }
-
-    private static File getOutputMediaFile(){
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "SEGUIN_LARVET");
-
-        if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
-            return null;
-        }
-
-        String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmmss").format(new Date());
-        return new File(mediaStorageDir.getPath() + File.separator +
-                "IMG_"+ timeStamp + ".jpg");
-    }
-
-    public void onImageGalleryClicked() {
-        clearBitmap();
-
-        Intent picturePickedIntent = new Intent(Intent.ACTION_PICK);
-
-        File pictureDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_ALARMS);
-        String pictureDirectoryPath = pictureDirectory.getPath();
-
-        Uri data = Uri.parse(pictureDirectoryPath);
-
-        picturePickedIntent.setDataAndType(data, "image/*");
-        startActivityForResult(picturePickedIntent, REQUEST_IMAGE_GALLERY);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK){
-            switch(requestCode){
-                case REQUEST_TAKE_PHOTO:
-                    imageView.setImageURI(fileSavePic);
-                    BitmapDrawable bitmapDrawable = ((BitmapDrawable) imageView.getDrawable());
-                    if(bitmapDrawable == null){
-                        imageView.buildDrawingCache();
-                        originalBitmap = imageView.getDrawingCache();
-                        originalBitmap = getResizedBitmap(originalBitmap, MAX_BITMAP_WIDTH, MAX_BITMAP_HEIGHT);
-                        imageView.buildDrawingCache(false);
-                    } else{
-                        originalBitmap = bitmapDrawable.getBitmap();
-                        originalBitmap = getResizedBitmap(originalBitmap, MAX_BITMAP_WIDTH, MAX_BITMAP_HEIGHT);
-                    }
-                    appliedBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
-                    bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
-                    imageView.setImageBitmap(bitmap);
-                    createFilters();
-                    break;
-
-                case REQUEST_IMAGE_GALLERY:
-                    Uri imageUri = data.getData(); // address of image on SD card
-
-                    InputStream inputStream; // stream to read the image data
-                    try {
-                        inputStream = getContentResolver().openInputStream(imageUri);
-                        originalBitmap = BitmapFactory.decodeStream(inputStream);
-                        originalBitmap = getResizedBitmap(originalBitmap, MAX_BITMAP_WIDTH, MAX_BITMAP_HEIGHT);
-                        appliedBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
-                        bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
-                        imageView.setImageBitmap(bitmap);
-                        createFilters();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                        Toast.makeText(this, "Impossible to open the image", Toast.LENGTH_LONG).show();
-                    }
-                    break;
-            }
-        }
-    }
-
-    protected void saveImage(){
-        String root = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "SEGUIN_LARVET").toString();
-        File myDir = new File(root);
-        myDir.mkdirs();
-
-        String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmmss").format(new Date());
-
-        String imageName = "IMG-" + timeStamp+ ".jpg";
-        File file = new File(myDir, imageName);
-        if (file.exists()){
-            file.delete();
-        }
-
-        try {
-            FileOutputStream out = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-            out.flush();
-            out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState){
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(SAVE_BMP, bitmap);
-    }
-
-    private void createFilters() {
-        colourFilter = new Colour(bitmap);
-        convolutionFilter = new Convolution(bitmap);
-        complexFilter = new ComplexFilter(bitmap);
-        contrastFilter = new Contrast(bitmap);
-        luminosityFilter = new Luminosity(bitmap);
-    }
-
-    private void checkPermissions() {
-        String[] permissions = new String[]{Manifest.permission.CAMERA,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE};
-
-        ActivityCompat.requestPermissions(this,permissions, 0);
-        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-        StrictMode.setVmPolicy(builder.build());
-
-        if (ContextCompat.checkSelfPermission(this, permissions[0]) == PackageManager.PERMISSION_DENIED){
-            canTakePicture = false;
-        } else {
-            canTakePicture = true;
-        }
-        if (ContextCompat.checkSelfPermission(this, permissions[1]) == PackageManager.PERMISSION_DENIED){
-            canSave = false;
-        } else {
-            canSave = true;
-        }
-        if (ContextCompat.checkSelfPermission(this, permissions[2]) == PackageManager.PERMISSION_DENIED){
-            canPickFromGallery = false;
-        } else {
-            canPickFromGallery = true;
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -475,6 +242,96 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /* HANDLING TOUCH EVENTS */
+    View.OnTouchListener handleTouch = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    savedMatrix.set(matrix);
+                    start.set(event.getX(), event.getY());
+                    mode = DRAG;
+                    break;
+
+                case MotionEvent.ACTION_POINTER_DOWN:
+                    oldDist = spacing(event);
+                    if (oldDist > 10f) {
+                        savedMatrix.set(matrix);
+                        midPoint(mid, event);
+                        mode = ZOOM;
+                    }
+                    break;
+
+                case MotionEvent.ACTION_POINTER_UP:
+                    mode = NONE;
+                    break;
+
+                case MotionEvent.ACTION_UP:
+                    mode = NONE;
+                    break;
+
+                case MotionEvent.ACTION_MOVE:
+                    if (mode == DRAG) {
+                        matrix.set(savedMatrix);
+                        matrix.postTranslate(event.getX() - start.x, event.getY()
+                                - start.y);
+                    } else if (mode == ZOOM) {
+                        float newDist = spacing(event);
+                        if (newDist > 10f) {
+                            matrix.set(savedMatrix);
+                            float scale = newDist / oldDist;
+                            matrix.postScale(scale, scale, mid.x, mid.y);
+                        }
+                    }
+                    break;
+            }
+            imageView.setImageMatrix(matrix);
+            return true;
+        }
+    };
+
+    /* Computes the space between the first two fingers */
+    private float spacing(MotionEvent event) {
+        float x = event.getX(0) - event.getX(1);
+        float y = event.getY(0) - event.getY(1);
+        return (float)Math.sqrt(x * x + y * y);
+    }
+
+    /* Computes the mid point of the first two fingers */
+    private void midPoint(PointF point, MotionEvent event) {
+        float x = event.getX(0) + event.getX(1);
+        float y = event.getY(0) + event.getY(1);
+        point.set(x / 2, y / 2);
+    }
+
+    /* END OF TOUCH EVENTS */
+
+
+    /* OPERATIONS ON BITMAPS */
+    private void clearBitmap(){
+        imageView.setImageResource(R.mipmap.ic_launcher);
+        bitmap.recycle();
+        bitmap = null;
+
+        appliedBitmap.recycle();
+        appliedBitmap = null;
+
+        originalBitmap.recycle();
+        originalBitmap = null;
+    }
+
+    public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        int max = Math.max(width, height);
+        int newW = (width * newWidth) / max;
+        int newH = (height * newHeight) / max;
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(
+                bm, newW, newH, false);
+        return resizedBitmap;
+    }
+
     private void resetBitmap(){
         bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
         imageView.setImageBitmap(bitmap);
@@ -485,6 +342,156 @@ public class MainActivity extends AppCompatActivity {
         bitmap = appliedBitmap.copy(originalBitmap.getConfig(), true);
         imageView.setImageBitmap(bitmap);
         createFilters();
+    }
+
+    /* END OPERATIONS ON BITMAPS */
+
+    /* GETTING PICTURES FROM CAMERA OR GALLERY */
+    private void takePicture(){
+        clearBitmap();
+
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        fileSavePic = Uri.fromFile(getOutputMediaFile());
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileSavePic);
+
+        startActivityForResult(intent, REQUEST_TAKE_PHOTO);
+    }
+
+    private static File getOutputMediaFile(){
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "SEGUIN_LARVET");
+
+        if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
+            return null;
+        }
+
+        String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmmss").format(new Date());
+        return new File(mediaStorageDir.getPath() + File.separator +
+                "IMG_"+ timeStamp + ".jpg");
+    }
+
+    public void onImageGalleryClicked() {
+        clearBitmap();
+
+        Intent picturePickedIntent = new Intent(Intent.ACTION_PICK);
+
+        File pictureDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_ALARMS);
+        String pictureDirectoryPath = pictureDirectory.getPath();
+
+        Uri data = Uri.parse(pictureDirectoryPath);
+
+        picturePickedIntent.setDataAndType(data, "image/*");
+        startActivityForResult(picturePickedIntent, REQUEST_IMAGE_GALLERY);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK){
+            switch(requestCode){
+                case REQUEST_TAKE_PHOTO:
+                    imageView.setImageURI(fileSavePic);
+                    BitmapDrawable bitmapDrawable = ((BitmapDrawable) imageView.getDrawable());
+                    if(bitmapDrawable == null){
+                        imageView.buildDrawingCache();
+                        originalBitmap = imageView.getDrawingCache();
+                        originalBitmap = getResizedBitmap(originalBitmap, MAX_BITMAP_WIDTH, MAX_BITMAP_HEIGHT);
+                        imageView.buildDrawingCache(false);
+                    } else{
+                        originalBitmap = bitmapDrawable.getBitmap();
+                        originalBitmap = getResizedBitmap(originalBitmap, MAX_BITMAP_WIDTH, MAX_BITMAP_HEIGHT);
+                    }
+                    appliedBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+                    bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+                    imageView.setImageBitmap(bitmap);
+                    createFilters();
+                    break;
+
+                case REQUEST_IMAGE_GALLERY:
+                    Uri imageUri = data.getData(); // address of image on SD card
+
+                    InputStream inputStream; // stream to read the image data
+                    try {
+                        inputStream = getContentResolver().openInputStream(imageUri);
+                        originalBitmap = BitmapFactory.decodeStream(inputStream);
+                        originalBitmap = getResizedBitmap(originalBitmap, MAX_BITMAP_WIDTH, MAX_BITMAP_HEIGHT);
+                        appliedBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+                        bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+                        imageView.setImageBitmap(bitmap);
+                        createFilters();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                        Toast.makeText(this, "Impossible to open the image", Toast.LENGTH_LONG).show();
+                    }
+                    break;
+            }
+        }
+    }
+    /* END GETTING PICTURES */
+
+    protected void saveImage(){
+        String root = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "SEGUIN_LARVET").toString();
+        File myDir = new File(root);
+        myDir.mkdirs();
+
+        String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmmss").format(new Date());
+
+        String imageName = "IMG-" + timeStamp+ ".jpg";
+        File file = new File(myDir, imageName);
+        if (file.exists()){
+            file.delete();
+        }
+
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(SAVE_BMP, bitmap);
+    }
+
+    private void createFilters() {
+        colourFilter = new Colour(bitmap);
+        convolutionFilter = new Convolution(bitmap);
+        complexFilter = new ComplexFilter(bitmap);
+        contrastFilter = new Contrast(bitmap);
+        luminosityFilter = new Luminosity(bitmap);
+    }
+
+    private void checkPermissions() {
+        String[] permissions = new String[]{Manifest.permission.CAMERA,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE};
+
+        ActivityCompat.requestPermissions(this,permissions, 0);
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+
+        if (ContextCompat.checkSelfPermission(this, permissions[0]) == PackageManager.PERMISSION_DENIED){
+            canTakePicture = false;
+        } else {
+            canTakePicture = true;
+        }
+        if (ContextCompat.checkSelfPermission(this, permissions[1]) == PackageManager.PERMISSION_DENIED){
+            canSave = false;
+        } else {
+            canSave = true;
+        }
+        if (ContextCompat.checkSelfPermission(this, permissions[2]) == PackageManager.PERMISSION_DENIED){
+            canPickFromGallery = false;
+        } else {
+            canPickFromGallery = true;
+        }
     }
 
     public void setBarVisibility(int v1, int v2, int v3, int v4, int v5, int v6, int v7, int v8){
@@ -511,7 +518,6 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu, menu);
         menu.getItem(0).setVisible(canTakePicture);
         menu.getItem(1).setVisible(canPickFromGallery);
-        this.menu = menu;
         return true;
     }
 
