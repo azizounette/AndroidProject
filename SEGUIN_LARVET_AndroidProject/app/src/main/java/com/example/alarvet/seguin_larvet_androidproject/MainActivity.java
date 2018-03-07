@@ -10,6 +10,7 @@ import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
@@ -104,8 +105,13 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedInstanceState != null) {
             originalBitmap = savedInstanceState.getParcelable(SAVE_BMP);
-            appliedBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
-            bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+            try {
+                appliedBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+                bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+            } catch (java.lang.NullPointerException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Error", Toast.LENGTH_LONG).show();
+            }
             imageView.setImageBitmap(bitmap);
         } else {
             checkPermissions();
@@ -331,9 +337,8 @@ public class MainActivity extends AppCompatActivity {
         int max = Math.max(width, height);
         int newW = (width * newWidth) / max;
         int newH = (height * newHeight) / max;
-        Bitmap resizedBitmap = Bitmap.createScaledBitmap(
+        return Bitmap.createScaledBitmap(
                 bm, newW, newH, false);
-        return resizedBitmap;
     }
 
     private void resetBitmap(){
@@ -473,29 +478,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkPermissions() {
-        String[] permissions = new String[]{Manifest.permission.CAMERA,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE};
+        int apiLevel = Build.VERSION.SDK_INT;
+        String[] permissions;
+        if (apiLevel < 16) {
+            permissions = new String[]{Manifest.permission.CAMERA,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        } else {
+            permissions = new String[]{Manifest.permission.CAMERA,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE};
+        }
 
         ActivityCompat.requestPermissions(this,permissions, 0);
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
 
-        if (ContextCompat.checkSelfPermission(this, permissions[0]) == PackageManager.PERMISSION_DENIED){
-            canTakePicture = false;
-        } else {
-            canTakePicture = true;
-        }
-        if (ContextCompat.checkSelfPermission(this, permissions[1]) == PackageManager.PERMISSION_DENIED){
-            canSave = false;
-        } else {
-            canSave = true;
-        }
-        if (ContextCompat.checkSelfPermission(this, permissions[2]) == PackageManager.PERMISSION_DENIED){
-            canPickFromGallery = false;
-        } else {
-            canPickFromGallery = true;
-        }
+        canTakePicture = (ContextCompat.checkSelfPermission(this, permissions[0]) == PackageManager.PERMISSION_GRANTED);
+        canSave = (ContextCompat.checkSelfPermission(this, permissions[1]) == PackageManager.PERMISSION_GRANTED);
+        canPickFromGallery = (ContextCompat.checkSelfPermission(this, permissions[2]) == PackageManager.PERMISSION_GRANTED);
     }
 
     public void setBarVisibility(int v1, int v2, int v3, int v4, int v5, int v6, int v7, int v8){
