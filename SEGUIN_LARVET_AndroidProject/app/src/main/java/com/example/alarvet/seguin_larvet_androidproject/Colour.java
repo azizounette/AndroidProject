@@ -2,19 +2,19 @@ package com.example.alarvet.seguin_larvet_androidproject;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.util.Log;
 
 /**
- * Created by Aziza on 03/02/2018.
+ * This class applies colour filters to the bitmap.
  */
-
 public class Colour extends Filter {
 
     public Colour(Bitmap bmp) {
         super(bmp);
     }
 
-
+    /**
+     * This method applies a gray filter by calculating the weighted average of R, G and B for each pixels.
+     */
     public void toGray() {
         Bitmap bmp = this.getBmp();
 
@@ -27,6 +27,10 @@ public class Colour extends Filter {
         bmp.setPixels(pixels, 0, width, 0, 0, width, height);
     }
 
+    /**
+     * This method applies a gray filter to every pixels but the one that are within the range of the selected color (tint).
+     * @param tint int between 0 and 350 (bound the hue of the color)
+     */
     public void grayAndTint(int tint) {
         Bitmap bmp = this.getBmp();
         int offset = 30;
@@ -45,12 +49,19 @@ public class Colour extends Filter {
         bmp.setPixels(pixels, 0, width, 0, 0, width, height);
     }
 
-    public void changeTint(int tint, float saturation, float value) {
+    /**
+     * This method applies a color filter. The color is bound to the parameters : the applied color
+     * HSV is (hue, saturation, value).
+     * @param hue int between 0 and 359
+     * @param saturation float between 0 and 1
+     * @param value float between 0 and 1
+     */
+    public void changeTint(int hue, float saturation, float value) {
         Bitmap bmp = this.getBmp();
         int pixels[] = new int[width*height];
         bmp.getPixels(pixels, 0, width, 0, 0, width, height);
         float[] hsv = new float[3];
-        hsv[0] = tint;
+        hsv[0] = hue;
         hsv[1] = saturation;
         hsv[2] = value;
         int tintrgb = Color.HSVToColor(hsv);
@@ -61,6 +72,9 @@ public class Colour extends Filter {
         bmp.setPixels(pixels, 0, width, 0, 0, width, height);
     }
 
+    /**
+     * This method applies a sepia filter by doing a weighted average of R, G and B on R, G and B.
+     */
     public void sepia(){
         Bitmap bmp = this.getBmp();
         int[] pixels = new int[width * height];
