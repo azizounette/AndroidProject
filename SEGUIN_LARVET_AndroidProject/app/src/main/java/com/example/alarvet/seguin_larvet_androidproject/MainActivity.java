@@ -14,13 +14,11 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -105,13 +103,16 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedInstanceState != null) {
             originalBitmap = savedInstanceState.getParcelable(SAVE_BMP);
+            Bitmap.Config config;
             try {
-                appliedBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
-                bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+                config = originalBitmap.getConfig();
             } catch (java.lang.NullPointerException e) {
                 e.printStackTrace();
                 Toast.makeText(this, "Error", Toast.LENGTH_LONG).show();
+                return;
             }
+            appliedBitmap = originalBitmap.copy(config, true);
+            bitmap = originalBitmap.copy(config, true);
             imageView.setImageBitmap(bitmap);
         } else {
             checkPermissions();
@@ -533,7 +534,7 @@ public class MainActivity extends AppCompatActivity {
 
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(MainActivity.this);
         View mView = getLayoutInflater().inflate(R.layout.dialog_spinner, null);
-        final Spinner mSpinner = (Spinner) mView.findViewById(R.id.spinner);
+        final Spinner mSpinner = mView.findViewById(R.id.spinner);
         AlertDialog dialog;
         ArrayAdapter<String> adapter;
         String[] mArray;
@@ -555,7 +556,7 @@ public class MainActivity extends AppCompatActivity {
                 onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
                 mBuilder.setTitle("Amount of Blur desired");
                 mArray = getResources().getStringArray(R.array.threshold);
-                adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
+                adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 mSpinner.setAdapter(adapter);
                 mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -622,7 +623,7 @@ public class MainActivity extends AppCompatActivity {
                 onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
                 mBuilder.setTitle("Choose the hue of the color wanted");
                 mArray = getResources().getStringArray(R.array.colorHue);
-                adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
+                adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 mSpinner.setAdapter(adapter);
                 mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -653,7 +654,7 @@ public class MainActivity extends AppCompatActivity {
                 onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
                 mBuilder.setTitle("Amount of Blur desired");
                 mArray = getResources().getStringArray(R.array.amountBlur);
-                adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
+                adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 mSpinner.setAdapter(adapter);
                 mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -677,7 +678,7 @@ public class MainActivity extends AppCompatActivity {
                 onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
                 mBuilder.setTitle("Amount of Blur desired");
                 mArray = getResources().getStringArray(R.array.amountBlur);
-                adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
+                adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 mSpinner.setAdapter(adapter);
                 mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
