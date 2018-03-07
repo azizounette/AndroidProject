@@ -36,63 +36,235 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+
 public class MainActivity extends AppCompatActivity {
 
+    /**
+     * The bitmap we apply changes on.
+     */
     private Bitmap bitmap;
+
+    /**
+     * The bitmap used for //TODO MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAX
+     */
     private Bitmap appliedBitmap;
+
+    /**
+     * The bitmap we keep in case of a reset.
+     */
     private Bitmap originalBitmap;
+
+    /**
+     * Button used to save the picture.
+     */
     private Button saveButton;
+
+    /**
+     * Maximum width of the bitmap. It is used for rescaling.
+     */
     private static final int MAX_BITMAP_WIDTH = 1000;
+
+    /**
+     * Maximum height of the bitmap. It is used for rescaling.
+     */
     private static final int MAX_BITMAP_HEIGHT = 1000;
 
+    /**
+     * The View used to display the image.
+     */
     private ImageView imageView;
+
+    /**
+     * The number bound to the request used when the user wants to pick an image
+     * from the gallery.
+     */
     private static final int REQUEST_IMAGE_GALLERY = 1;
+
+    /**
+     * The number bound to the request used when the user wants to take a picture
+     * with the camera.
+     */
     private static final int REQUEST_TAKE_PHOTO = 2;
 
     //Variables used for permissions
+    /**
+     * Used for permissions.
+     * If permission for using camera is granted, it is true.
+     */
     private static boolean canTakePicture =  false;
+
+    /**
+     * Used for permissions.
+     * If permission for reading external storage is granted,it is true.
+     */
     private static boolean canSave = false;
+
+    /**
+     * Used for permissions.
+     * If permission for writing on external storage is granted, it is true.
+     */
     private static boolean canPickFromGallery = false;
 
     //Variables used for applying filters to the image
+    /**
+     * The filter used to apply colour filters to the picture.
+     * @see Colour
+     */
     private Colour colourFilter;
+
+    /**
+     * The filter used to apply complex filters to the picture.
+     * @see ComplexFilter
+     */
     private ComplexFilter complexFilter;
+
+    /**
+     * The filter used to change the contrast of the picture.
+     * @see Contrast
+     */
     private Contrast contrastFilter;
+
+    /**
+     * The filter used to apply Convolution masks to the picture.
+     * @see Convolution
+     */
     private Convolution convolutionFilter;
+
+    /**
+     * The filter used to change the luminosity of the picture.
+     * @see Luminosity
+     */
     private Luminosity luminosityFilter;
 
+    /**
+     * TODO MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAX
+     */
     private int hue = 0;
+
+    /**
+     * TODO MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAX
+     */
     private float saturation = 1;
+
+    /**
+     * TODO MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAX
+     */
     private float value = 1;
+
+    /**
+     * Bar used to change the hue of the picture.
+     */
     private SeekBar hueBar;
+
+    /**
+     * Bar used to change the saturation of the picture.
+     */
     private SeekBar saturationBar;
+
+    /**
+     * TODO MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAX
+     */
     private SeekBar valueBar;
+
+    /**
+     * Bar used to change the contrast of the picture.
+     */
     private SeekBar contrastBar;
+
+    /**
+     * Bar used to change the luminosity of the picture.
+     */
     private SeekBar luminosityBar;
+
+    /**
+     * Bar used to apply a surprising change to the picture.
+     * @see Contrast#magicWand(int)
+     */
     private SeekBar magicWandBar;
+
+    /**
+     * Bar used to apply a feeling of warmth/cold to the picture.
+     */
     private SeekBar warmthBar;
+
+    /**
+     * Bar used to apply an Andy Warhol effect to the picture.
+     */
     private SeekBar warholBar;
 
+    /**
+     * Used to save a picture to the gallery after it was taken with the camera.
+     */
     private Uri fileSavePic;
 
+    /**
+     * Matrix used for scaling of the picture. It is used for touch events.
+     * It is used for zooming and scrolling.
+     */
     Matrix matrix = new Matrix();
+
+    /**
+     * Matrix used for scaling of the picture. It is used for touch events.
+     * It is used for zooming and scrolling.
+     * It is used to save the state of the matrix before zooming/scrolling on the picture.
+     */
     Matrix savedMatrix = new Matrix();
 
-    // We can be in one of these 3 states
+    // States used for scrolling/zooming.
+    /**
+     * Mode in which we are when we are not zooming or scrolling. Idle state.
+     */
     private static final int NONE = 0;
+
+    /**
+     * Mode in which we are when we are scrolling.
+     */
     private static final int DRAG = 1;
+
+    /**
+     * Mode in which we are when we are zooming.
+     */
     private static final int ZOOM = 2;
+
+    /**
+     * Mode in which we currently are.
+     */
     int mode = NONE;
 
     // Variables used for scaling
+    /**
+     * Point used to represent the position on the screen
+     * of the first finger touching the screen.
+     */
     PointF start = new PointF();
+
+    /**
+     * Point used to represent the position on the screen
+     * of the middle position between the first two fingers touching the screen.
+     */
     PointF mid = new PointF();
+
+    /**
+     * Distance between the positions where the fingers touched the screen initially.
+     */
     float oldDist = 1f;
 
 
     // Variable used for saving the bitmap before an orientation change
+    /**
+     * Used to save the bitmap on which we apply the changes before an orientation change.
+     */
     private static final String SAVE_BMP = "SaveBitmap";
+
+    /**
+     * Used to save the original bitmap before an orientation change.
+     */
     private static final String SAVE_ORIGINAL_BMP = "SaveOriginalBitmap";
+
+    /**
+     * Used to save the bitmap used to apply specific changes before an orientation change.
+     * //TODO Alèd je sais pas comment expliquer la bitmap MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAX
+     */
     private static final String SAVE_APPLIED_BMP = "SaveAppliedBitmap";
 
 
@@ -138,6 +310,9 @@ public class MainActivity extends AppCompatActivity {
         outState.putParcelable(SAVE_APPLIED_BMP, appliedBitmap);
     }
 
+    /**
+     * Creates all the bars that we need to apply changes to our picture.
+     */
     public void createSeekBar() {
         hueBar = (SeekBar) findViewById(R.id.hueBar);
         hueBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -257,6 +432,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /* HANDLING TOUCH EVENTS */
+
     View.OnTouchListener handleTouch = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
@@ -305,14 +481,23 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    /* Computes the space between the first two fingers */
+    /**
+     * Computes the distance between positions of fingers given by a MotionEvent.
+     * @param event The touch event we get positions of the fingers from.
+     * @return The distance between the first two fingers.
+     */
     private float spacing(MotionEvent event) {
         float x = event.getX(0) - event.getX(1);
         float y = event.getY(0) - event.getY(1);
         return (float)Math.sqrt(x * x + y * y);
     }
 
-    /* Computes the mid point of the first two fingers */
+
+    /**
+     * Computes the mid point of the first two fingers
+     * @param point The point that is going to be the computed mid point.
+     * @param event The MotionEvent we get positions of the fingers from.
+     */
     private void midPoint(PointF point, MotionEvent event) {
         float x = event.getX(0) + event.getX(1);
         float y = event.getY(0) + event.getY(1);
@@ -323,6 +508,11 @@ public class MainActivity extends AppCompatActivity {
 
 
     /* OPERATIONS ON BITMAPS */
+
+    /**
+     * Resets the ImageView to an icon and clears all the bitmaps that we use.
+     * It is used for performance and memory leaks issues.
+     */
     private void clearBitmap(){
         imageView.setImageResource(R.mipmap.ic_launcher);
         bitmap.recycle();
@@ -335,16 +525,27 @@ public class MainActivity extends AppCompatActivity {
         originalBitmap = null;
     }
 
-    public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
+    /**
+     * Re-sizes a bitmap thanks to the given parameters.
+     * @param bm The bitmap to resize.
+     * @param maxWidth The maximum width we want for our resized bitmap.
+     * @param maxHeight The maximum height we want for our resized bitmap.
+     * @return The resized bitmap.
+     */
+    public Bitmap getResizedBitmap(Bitmap bm, int maxWidth, int maxHeight) {
         int width = bm.getWidth();
         int height = bm.getHeight();
         int max = Math.max(width, height);
-        int newW = (width * newWidth) / max;
-        int newH = (height * newHeight) / max;
+        int newW = (width * maxWidth) / max;
+        int newH = (height * maxHeight) / max;
         return Bitmap.createScaledBitmap(
                 bm, newW, newH, false);
     }
 
+    /**
+     * Resets the bitmap we apply changes on to the original bitmap (that does not
+     * have any change) and recreates the filters.
+     */
     private void resetBitmap(){
         bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
         appliedBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
@@ -352,6 +553,10 @@ public class MainActivity extends AppCompatActivity {
         createFilters();
     }
 
+    /**
+     * Resets the appliedBitmap to the original bitmap (that does not
+     * have any change) and recreates the filters.
+     */
     private void resetAppliedBitmap () {
         bitmap = appliedBitmap.copy(originalBitmap.getConfig(), true);
         imageView.setImageBitmap(bitmap);
@@ -361,6 +566,10 @@ public class MainActivity extends AppCompatActivity {
     /* END OPERATIONS ON BITMAPS */
 
     /* GETTING PICTURES FROM CAMERA OR GALLERY */
+
+    /**
+     * Handles the case where the user wants to take a picture thanks to an intent.
+     */
     private void takePicture(){
         clearBitmap();
 
@@ -376,6 +585,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Creates a directory and a file.
+     * @return The created file.
+     */
     private static File getOutputMediaFile(){
         File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES), "SEGUIN_LARVET");
@@ -389,6 +602,10 @@ public class MainActivity extends AppCompatActivity {
                 "IMG_"+ timeStamp + ".jpg");
     }
 
+    /**
+     * Handles the case where the user wants to pick a picture from the gallery
+     * thanks to an intent.
+     */
     public void onImageGalleryClicked() {
         clearBitmap();
 
@@ -451,8 +668,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
     /* END GETTING PICTURES */
 
+    /**
+     * Saves an image to the gallery of the phone.
+     */
     protected void saveImage(){
         File saveFile = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES), "SEGUIN_LARVET");
@@ -480,7 +701,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    /**
+     * Creates all the filters used to apply changes to the bitmap.
+     */
     private void createFilters() {
         colourFilter = new Colour(bitmap);
         convolutionFilter = new Convolution(bitmap);
@@ -489,6 +712,9 @@ public class MainActivity extends AppCompatActivity {
         luminosityFilter = new Luminosity(bitmap);
     }
 
+    /**
+     * Checks the permissions for the application.
+     */
     private void checkPermissions() {
         int apiLevel = Build.VERSION.SDK_INT;
         String[] permissions;
@@ -506,6 +732,19 @@ public class MainActivity extends AppCompatActivity {
         StrictMode.setVmPolicy(builder.build());
     }
 
+    /**
+     * The usual onRequestPermissionsResult is used. Then, the booleans used to save the permissions
+     * are updated according to the user's wishes. The menu is invalidated in order to be reset
+     * according to the new permissions: if the permission to read from external storage is granted,
+     * the menu item bound to picking a picture from the gallery is visible, and hidden otherwise ;
+     * if the permission to use the camera is granted, the menu item bound to taking a picture is
+     * visible, and hidden otherwise.
+     * The visibility of the button used to save the picture is changed according to the permission
+     * to write on external storage.
+     * @param requestCode Code given by ActivityCompat.requestPermissions().
+     * @param permissions The permissions we ask for.
+     * @param grantResults The results for the permissions.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -520,24 +759,55 @@ public class MainActivity extends AppCompatActivity {
         invalidateOptionsMenu();
     }
 
-    public void setBarVisibility(int v1, int v2, int v3, int v4, int v5, int v6, int v7, int v8){
-        hueBar.setVisibility(v1);
-        saturationBar.setVisibility(v2);
-        valueBar.setVisibility(v3);
-        contrastBar.setVisibility(v4);
-        luminosityBar.setVisibility(v5);
-        magicWandBar.setVisibility(v6);
-        warmthBar.setVisibility(v7);
-        warholBar.setVisibility(v8);
+    /**
+     * Changes the bars' visibility.
+     * @param hueVisibility The new visibility of the hue bar.
+     * @param saturationVisibility The new visibility of the saturation bar.
+     * @param valueVisibility The new visibility of the value bar.
+     * @param contrastVisibility The new visibility of the contrast bar.
+     * @param luminosityVisibility The new visibility of the luminosity bar.
+     * @param magicWandVisibility The new visibility of the magic wand bar.
+     * @param warmthVisibility The new visibility of the warmth bar.
+     * @param warholVisibility The new visibility of the warhol bar.
+     */
+    public void setBarVisibility(int hueVisibility, int saturationVisibility, int valueVisibility,
+                                 int contrastVisibility, int luminosityVisibility, int magicWandVisibility,
+                                 int warmthVisibility, int warholVisibility){
+        hueBar.setVisibility(hueVisibility);
+        saturationBar.setVisibility(saturationVisibility);
+        valueBar.setVisibility(valueVisibility);
+        contrastBar.setVisibility(contrastVisibility);
+        luminosityBar.setVisibility(luminosityVisibility);
+        magicWandBar.setVisibility(magicWandVisibility);
+        warmthBar.setVisibility(warmthVisibility);
+        warholBar.setVisibility(warholVisibility);
     }
 
+    /**
+     * Listener bound to the button used to save a picture.
+     */
     private View.OnClickListener saveButtonListener = new View.OnClickListener(){
-        public void onClick(View v) {saveImage();}
+        public void onClick(View v){
+            saveImage();
+        }
     };
 
-
-    public void onFilterCalled (int v1, int v2, int v3, int v4, int v5, int v6, int v7, int v8) {
-        setBarVisibility(v1,v2,v3,v4,v5,v6,v7,v8);
+    /**
+     * //TODO MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAX
+     * @param hueVisibility The new visibility of the hue bar.
+     * @param saturationVisibility The new visibility of the saturation bar.
+     * @param valueVisibility The new visibility of the value bar.
+     * @param contrastVisibility The new visibility of the contrast bar.
+     * @param luminosityVisibility The new visibility of the luminosity bar.
+     * @param magicWandVisibility The new visibility of the magic wand bar.
+     * @param warmthVisibility The new visibility of the warmth bar.
+     * @param warholVisibility The new visibility of the warhol bar.
+     */
+    public void onFilterCalled (int hueVisibility, int saturationVisibility, int valueVisibility,
+                                int contrastVisibility, int luminosityVisibility, int magicWandVisibility,
+                                int warmthVisibility, int warholVisibility) {
+        setBarVisibility(hueVisibility, saturationVisibility, valueVisibility, contrastVisibility,
+                luminosityVisibility, magicWandVisibility, warmthVisibility, warholVisibility);
         resetAppliedBitmap();
     }
 
