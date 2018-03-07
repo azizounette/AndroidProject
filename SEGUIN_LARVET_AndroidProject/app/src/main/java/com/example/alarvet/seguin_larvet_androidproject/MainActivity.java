@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -50,9 +51,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_TAKE_PHOTO = 2;
 
     //Variables used for permissions
-    private boolean canTakePicture =  false;
-    private boolean canSave = false;
-    private boolean canPickFromGallery = false;
+    private static boolean canTakePicture =  false;
+    private static boolean canSave = false;
+    private static boolean canPickFromGallery = false;
 
     //Variables used for applying filters to the image
     private Colour colourFilter;
@@ -124,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
         imageView.setOnTouchListener(handleTouch);
 
-        createSeekbar();
+        createSeekBar();
 
         setBarVisibility(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
 
@@ -135,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void createSeekbar() {
+    public void createSeekBar() {
         hueBar = (SeekBar) findViewById(R.id.hueBar);
         hueBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             public void onProgressChanged(SeekBar hBar, int progress, boolean fromUser) {
@@ -344,6 +345,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void resetBitmap(){
         bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+        appliedBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
         imageView.setImageBitmap(bitmap);
         createFilters();
     }
@@ -448,7 +450,7 @@ public class MainActivity extends AppCompatActivity {
 
         String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmmss").format(new Date());
 
-        String imageName = "IMG-" + timeStamp+ ".jpg";
+        String imageName = "IMG-" + timeStamp + ".jpg";
         File file = new File(myDir, imageName);
         if (file.exists()){
             file.delete();
@@ -459,8 +461,10 @@ public class MainActivity extends AppCompatActivity {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
             out.flush();
             out.close();
+            Toast.makeText(this, "Image saved", Toast.LENGTH_LONG).show();
         } catch (Exception e) {
             e.printStackTrace();
+            Toast.makeText(this, "Impossible to save the image", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -493,10 +497,15 @@ public class MainActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(this,permissions, 0);
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
+    }
 
-        canTakePicture = (ContextCompat.checkSelfPermission(this, permissions[0]) == PackageManager.PERMISSION_GRANTED);
-        canSave = (ContextCompat.checkSelfPermission(this, permissions[1]) == PackageManager.PERMISSION_GRANTED);
-        canPickFromGallery = (ContextCompat.checkSelfPermission(this, permissions[2]) == PackageManager.PERMISSION_GRANTED);
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        canTakePicture = (grantResults[0] == PackageManager.PERMISSION_GRANTED);
+        canSave = (grantResults[1] == PackageManager.PERMISSION_GRANTED);
+        canPickFromGallery = (grantResults[2] == PackageManager.PERMISSION_GRANTED);
+        invalidateOptionsMenu();
     }
 
     public void setBarVisibility(int v1, int v2, int v3, int v4, int v5, int v6, int v7, int v8){
@@ -514,14 +523,17 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {saveImage();}
     };
 
+
     public void onFilterCalled (int v1, int v2, int v3, int v4, int v5, int v6, int v7, int v8) {
         setBarVisibility(v1,v2,v3,v4,v5,v6,v7,v8);
         resetAppliedBitmap();
     }
 
     public boolean onPrepareOptionsMenu(Menu menu) {
+        invalidateOptionsMenu();
         menu.getItem(0).setVisible(canTakePicture);
         menu.getItem(1).setVisible(canPickFromGallery);
+        super.onPrepareOptionsMenu(menu);
         return true;
     }
 
@@ -531,7 +543,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
-
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(MainActivity.this);
         View mView = getLayoutInflater().inflate(R.layout.dialog_spinner, null);
         final Spinner mSpinner = mView.findViewById(R.id.spinner);
