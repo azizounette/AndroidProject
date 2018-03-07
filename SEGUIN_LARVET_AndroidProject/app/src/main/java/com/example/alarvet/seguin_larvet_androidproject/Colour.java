@@ -55,8 +55,8 @@ public class Colour extends Filter {
         hsv[2] = value;
         int tintrgb = Color.HSVToColor(hsv);
         for (int i = 0; i < height*width; i++) {
-            int w = (int) (0.11 * Color.blue(pixels[i]) + 0.3 * Color.red(pixels[i]) + 0.59 * Color.green(pixels[i]));
-            pixels[i] = Color.rgb(Color.red(tintrgb)*w/255, Color.green(tintrgb)*w/255, Color.blue(tintrgb)*w/255);
+            float w = (float) (0.11 * Color.blue(pixels[i]) + 0.3 * Color.red(pixels[i]) + 0.59 * Color.green(pixels[i]));
+            pixels[i] = Color.rgb((int)(Color.red(tintrgb)*w/255), (int)(Color.green(tintrgb)*w/255), (int)(Color.blue(tintrgb)*w/255));
         }
         bmp.setPixels(pixels, 0, width, 0, 0, width, height);
     }

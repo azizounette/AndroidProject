@@ -117,6 +117,18 @@ public class MainActivity extends AppCompatActivity {
 
         imageView.setOnTouchListener(handleTouch);
 
+        createSeekbar();
+
+        setBarVisibility(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+
+        saveButton = (Button) findViewById(R.id.saveButton);
+        saveButton.setOnClickListener(resetButtonListener);
+        if (!canSave) {
+            saveButton.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    public void createSeekbar() {
         hueBar = (SeekBar) findViewById(R.id.hueBar);
         hueBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             public void onProgressChanged(SeekBar hBar, int progress, boolean fromUser) {
@@ -232,14 +244,6 @@ public class MainActivity extends AppCompatActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-
-        setBarVisibility(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-
-        saveButton = (Button) findViewById(R.id.saveButton);
-        saveButton.setOnClickListener(resetButtonListener);
-        if (!canSave) {
-            saveButton.setVisibility(View.INVISIBLE);
-        }
     }
 
     /* HANDLING TOUCH EVENTS */
@@ -514,10 +518,14 @@ public class MainActivity extends AppCompatActivity {
         resetAppliedBitmap();
     }
 
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
+    public boolean onPrepareOptionsMenu(Menu menu) {
         menu.getItem(0).setVisible(canTakePicture);
         menu.getItem(1).setVisible(canPickFromGallery);
+        return true;
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
         return true;
     }
 
