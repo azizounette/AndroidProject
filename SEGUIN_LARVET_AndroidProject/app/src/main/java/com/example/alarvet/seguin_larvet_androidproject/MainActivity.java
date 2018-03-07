@@ -16,7 +16,6 @@ import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -94,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
     // Variable used for saving the bitmap before an orientation change
     private static final String SAVE_BMP = "SaveBitmap";
     private static final String SAVE_ORIGINAL_BMP = "SaveOriginalBitmap";
+    private static final String SAVE_APPLIED_BMP = "SaveAppliedBitmap";
 
 
     @Override
@@ -106,15 +106,7 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             originalBitmap = savedInstanceState.getParcelable(SAVE_ORIGINAL_BMP);
             bitmap = savedInstanceState.getParcelable(SAVE_BMP);
-            Bitmap.Config config;
-            try {
-                config = originalBitmap.getConfig();
-            } catch (java.lang.NullPointerException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Error", Toast.LENGTH_LONG).show();
-                return;
-            }
-            appliedBitmap = originalBitmap.copy(config, true);
+            appliedBitmap = savedInstanceState.getParcelable(SAVE_APPLIED_BMP);
             imageView.setImageBitmap(bitmap);
         } else {
             checkPermissions();
@@ -132,6 +124,9 @@ public class MainActivity extends AppCompatActivity {
 
         saveButton = (Button) findViewById(R.id.saveButton);
         saveButton.setOnClickListener(saveButtonListener);
+        if (!canSave) {
+            saveButton.setVisibility(View.INVISIBLE);
+        }
     }
 
 
@@ -140,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         outState.putParcelable(SAVE_BMP, bitmap);
         outState.putParcelable(SAVE_ORIGINAL_BMP, originalBitmap);
+        outState.putParcelable(SAVE_APPLIED_BMP, appliedBitmap);
     }
 
     public void createSeekBar() {
@@ -518,6 +514,8 @@ public class MainActivity extends AppCompatActivity {
         canPickFromGallery = (grantResults[2] == PackageManager.PERMISSION_GRANTED);
         if (!canSave) {
             saveButton.setVisibility(View.INVISIBLE);
+        } else {
+            saveButton.setVisibility(View.VISIBLE);
         }
         invalidateOptionsMenu();
     }
