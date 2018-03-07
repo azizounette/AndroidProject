@@ -4,9 +4,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 
 /**
- * Created by Aziza on 03/02/2018.
+ * this class applies contrast methods to the bitmap.
  */
-
 public class Contrast extends Filter {
 
     public Contrast(Bitmap bmp){
@@ -34,6 +33,9 @@ public class Contrast extends Filter {
         return res;
     }
 
+    /**
+     * This method equalize the gray histogram of the bitmap (require the bitmap to be applied a gray filter).
+     */
     public void equalizeGray() {
         Bitmap bmp = this.getBmp();
         int[] cumulativeH = cumulativeHist(histogram(bmp));
@@ -49,7 +51,9 @@ public class Contrast extends Filter {
     /*End of histogram equalizer in black and white */
 
 
-    /* Histogram equalizer for colored pictures */
+    /**
+     * This method equalize the red, the green and the blue histograms.
+     */
     public void equalizeColors() {
         Bitmap bmp = this.getBmp();
         int[] cumulativeH = cumulativeHist(histogram(bmp));
@@ -67,6 +71,10 @@ public class Contrast extends Filter {
     }
 
     //TODO Value between -128 and 128
+    /**
+     * This method change the contrast of the image according to the parameter.
+     * @param value the amount of contrast to add.
+     */
     public void contrastChange (float value) {
         Bitmap bmp = this.getBmp();
         int[] pixels = new int[width * height];
@@ -81,7 +89,13 @@ public class Contrast extends Filter {
         }
         bmp.setPixels(pixels, 0, width,  0, 0, width, height);
     }
+
     //TODO Value between -128 and 128
+    /**
+     * This method change the warmth of the image by changing the contrast of red and blue
+     * symmetrically.
+     * @param value the amount of contrast to apply.
+     */
     public void warmthChange (float value) {
         Bitmap bmp = this.getBmp();
         int[] pixels = new int[width * height];
@@ -97,6 +111,10 @@ public class Contrast extends Filter {
         bmp.setPixels(pixels, 0, width,  0, 0, width, height);
     }
 
+    /**
+     * This method will change the image surprisingly.
+     * @param value the amount of surprise wanted.
+     */
     public void magicWand (int value) {
         Bitmap bmp = this.getBmp();
         int[] pixels = new int[width * height];
