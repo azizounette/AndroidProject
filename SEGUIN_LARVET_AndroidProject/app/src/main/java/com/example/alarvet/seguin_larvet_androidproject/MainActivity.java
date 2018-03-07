@@ -93,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Variable used for saving the bitmap before an orientation change
     private static final String SAVE_BMP = "SaveBitmap";
+    private static final String SAVE_ORIGINAL_BMP = "SaveOriginalBitmap";
 
 
     @Override
@@ -103,7 +104,8 @@ public class MainActivity extends AppCompatActivity {
         imageView = (ImageView) findViewById(R.id.imageView);
 
         if (savedInstanceState != null) {
-            originalBitmap = savedInstanceState.getParcelable(SAVE_BMP);
+            originalBitmap = savedInstanceState.getParcelable(SAVE_ORIGINAL_BMP);
+            bitmap = savedInstanceState.getParcelable(SAVE_BMP);
             Bitmap.Config config;
             try {
                 config = originalBitmap.getConfig();
@@ -113,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
             appliedBitmap = originalBitmap.copy(config, true);
-            bitmap = originalBitmap.copy(config, true);
             imageView.setImageBitmap(bitmap);
         } else {
             checkPermissions();
@@ -130,10 +131,15 @@ public class MainActivity extends AppCompatActivity {
         setBarVisibility(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
 
         saveButton = (Button) findViewById(R.id.saveButton);
-        saveButton.setOnClickListener(resetButtonListener);
-        if (!canSave) {
-            saveButton.setVisibility(View.INVISIBLE);
-        }
+        saveButton.setOnClickListener(saveButtonListener);
+    }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(SAVE_BMP, bitmap);
+        outState.putParcelable(SAVE_ORIGINAL_BMP, originalBitmap);
     }
 
     public void createSeekBar() {
@@ -362,11 +368,16 @@ public class MainActivity extends AppCompatActivity {
     private void takePicture(){
         clearBitmap();
 
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        fileSavePic = Uri.fromFile(getOutputMediaFile());
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileSavePic);
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-        startActivityForResult(intent, REQUEST_TAKE_PHOTO);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            fileSavePic = Uri.fromFile(getOutputMediaFile());
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileSavePic);
+
+            startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+        } else {
+            Toast.makeText(this, "Impossible to take a picture", Toast.LENGTH_LONG).show();
+        }
     }
 
     private static File getOutputMediaFile(){
@@ -387,13 +398,17 @@ public class MainActivity extends AppCompatActivity {
 
         Intent picturePickedIntent = new Intent(Intent.ACTION_PICK);
 
-        File pictureDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_ALARMS);
-        String pictureDirectoryPath = pictureDirectory.getPath();
+        if (picturePickedIntent.resolveActivity(getPackageManager()) != null) {
+            File pictureDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_ALARMS);
+            String pictureDirectoryPath = pictureDirectory.getPath();
 
-        Uri data = Uri.parse(pictureDirectoryPath);
+            Uri data = Uri.parse(pictureDirectoryPath);
 
-        picturePickedIntent.setDataAndType(data, "image/*");
-        startActivityForResult(picturePickedIntent, REQUEST_IMAGE_GALLERY);
+            picturePickedIntent.setDataAndType(data, "image/*");
+            startActivityForResult(picturePickedIntent, REQUEST_IMAGE_GALLERY);
+        } else {
+            Toast.makeText(this, "Impossible to pick a picture from the gallery", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
@@ -443,14 +458,15 @@ public class MainActivity extends AppCompatActivity {
     /* END GETTING PICTURES */
 
     protected void saveImage(){
-        String root = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "SEGUIN_LARVET").toString();
+        File saveFile = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "SEGUIN_LARVET");
+        String root = saveFile.toString();
+
         File myDir = new File(root);
         myDir.mkdirs();
-
         String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmmss").format(new Date());
 
-        String imageName = "IMG-" + timeStamp + ".jpg";
+        String imageName = "IMG_" + timeStamp + ".jpg";
         File file = new File(myDir, imageName);
         if (file.exists()){
             file.delete();
@@ -468,11 +484,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState){
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(SAVE_BMP, bitmap);
-    }
 
     private void createFilters() {
         colourFilter = new Colour(bitmap);
@@ -505,6 +516,9 @@ public class MainActivity extends AppCompatActivity {
         canTakePicture = (grantResults[0] == PackageManager.PERMISSION_GRANTED);
         canSave = (grantResults[1] == PackageManager.PERMISSION_GRANTED);
         canPickFromGallery = (grantResults[2] == PackageManager.PERMISSION_GRANTED);
+        if (!canSave) {
+            saveButton.setVisibility(View.INVISIBLE);
+        }
         invalidateOptionsMenu();
     }
 
@@ -519,7 +533,7 @@ public class MainActivity extends AppCompatActivity {
         warholBar.setVisibility(v8);
     }
 
-    private View.OnClickListener resetButtonListener = new View.OnClickListener(){
+    private View.OnClickListener saveButtonListener = new View.OnClickListener(){
         public void onClick(View v) {saveImage();}
     };
 
