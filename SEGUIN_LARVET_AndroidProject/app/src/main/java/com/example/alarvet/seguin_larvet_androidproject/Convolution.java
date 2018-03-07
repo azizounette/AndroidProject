@@ -136,7 +136,7 @@ public class Convolution extends Filter {
         return res;
     }
 
-    //TODO   1 = AverageBlur    2 = GaussianBlur    3 = Contouring    4 = Sharpening
+    //1 = AverageBlur    2 = GaussianBlur    3 = Contouring    4 = Sharpening
     /**
      * This method applies a convolution.
      * @param matrixConvo the matrix to apply

@@ -40,12 +40,12 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity {
 
     /**
-     * The bitmap we apply changes on.
+     * The bitmap on which we apply changes that have been validated by the user.
      */
     private Bitmap bitmap;
 
     /**
-     * The bitmap used for //TODO MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAX
+     * The bitmap used for temporary changes.
      */
     private Bitmap appliedBitmap;
 
@@ -137,19 +137,19 @@ public class MainActivity extends AppCompatActivity {
     private Luminosity luminosityFilter;
 
     /**
-     * TODO MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAX
+     * Used to change the hue of the picture and keep track of it.
      */
     private int hue = 0;
 
     /**
-     * TODO MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAX
+     * Used to change the saturation of the picture and keep track of it.
      */
-    private float saturation = 1;
+    private float saturation = 0;
 
     /**
-     * TODO MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAX
+     * Used to change the luminosity of the picture and keep track of it.
      */
-    private float value = 1;
+    private float value = 0;
 
     /**
      * Bar used to change the hue of the picture.
@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
     private SeekBar saturationBar;
 
     /**
-     * TODO MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAX
+     * Used to change the luminosity of the picture.
      */
     private SeekBar valueBar;
 
@@ -262,8 +262,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String SAVE_ORIGINAL_BMP = "SaveOriginalBitmap";
 
     /**
-     * Used to save the bitmap used to apply specific changes before an orientation change.
-     * //TODO Alèd je sais pas comment expliquer la bitmap MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAX
+     * Used to save the bitmap used to apply temporary changes before an orientation change.
      */
     private static final String SAVE_APPLIED_BMP = "SaveAppliedBitmap";
 
@@ -784,16 +783,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Listener bound to the button used to save a picture.
-     */
-    private View.OnClickListener saveButtonListener = new View.OnClickListener(){
-        public void onClick(View v){
-            saveImage();
-        }
-    };
-
-    /**
-     * //TODO MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAX
+     * Changes the visibility of seekBars and reset the bitmap used for temporary changes.
+     * This way, when the user wants to make a new change to the picture, the temporary changes vanish
+     * and the right seekBars appear.
+     *
      * @param hueVisibility The new visibility of the hue bar.
      * @param saturationVisibility The new visibility of the saturation bar.
      * @param valueVisibility The new visibility of the value bar.
@@ -810,6 +803,15 @@ public class MainActivity extends AppCompatActivity {
                 luminosityVisibility, magicWandVisibility, warmthVisibility, warholVisibility);
         resetAppliedBitmap();
     }
+
+    /**
+     * Listener bound to the button used to save a picture.
+     */
+    private View.OnClickListener saveButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            saveImage();
+        }
+    };
 
     public boolean onPrepareOptionsMenu(Menu menu) {
         invalidateOptionsMenu();
