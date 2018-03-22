@@ -28,7 +28,7 @@
         android:id="@+id/hueBar"
         android:layout_width="298dp"
         android:layout_height="14dp"
-        android:max="360"
+        android:max="359"
         android:progress="360"
         android:layout_marginBottom="20dp"
         tools:layout_editor_absoluteX="43dp"

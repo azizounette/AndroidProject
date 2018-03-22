@@ -4,9 +4,9 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 
 /**
- * Created by Aziza on 03/02/2018.
+ * This class is the mother class of all the other filter classes.
+ * It shares the height and the width of the bitmap with all the classes.
  */
-
 public abstract class Filter {
     private final Bitmap bmp;
     protected int height;
@@ -22,6 +22,13 @@ public abstract class Filter {
         return bmp;
     }
 
+    /**
+     * This method returns the gray filter applied image into an array.
+     * @param tab the array containing the initial image
+     * @param height height of the image
+     * @param width width of the image
+     * @return the gray filter applied array
+     */
     public int[] arrayOfGrayPixels(int[] tab, int height, int width) {
         int[] res = new int[height*width];
         for (int i = 0; i < height*width; i++) {

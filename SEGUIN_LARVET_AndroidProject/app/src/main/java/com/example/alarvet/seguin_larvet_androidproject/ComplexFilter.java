@@ -4,15 +4,19 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 
 /**
- * Created by maxseguin on 01/03/18.
+ * This class applies complex methods to the bitmap : Warhol effect and Cartoon effect.
  */
-
 public class ComplexFilter extends Filter {
     public ComplexFilter(Bitmap bmp){
         super(bmp);
     }
-    
-    //TODO val between 0 and 256
+
+    /**
+     * This methods applies a Warhol effect : the bitmap is converted to gray, and any pixel that
+     * have its red parameter (or blue or green because R=G=B) above the val parameter will be blue,
+     * otherwise it will turn red.
+     * @param val the threshold that will be check on every pixels
+     */
     public void warhol(int val) {
         Bitmap bmp = this.getBmp();
         int[] pixels = new int[width * height];
@@ -28,6 +32,11 @@ public class ComplexFilter extends Filter {
         bmp.setPixels(pixels, 0, width,  0, 0, width, height);
     }
 
+    /**
+     * This method applies a cartoon effect : it's a mix of contouring and blurring. First we build
+     * the contouring of the image, and we add them to the initial image blurred.
+     * @param threshold the threshold above which the contouring will be shown
+     */
     public void cartoon(int threshold){
         Bitmap bmp = this.getBmp();
         int[] pixels = new int[width * height];
@@ -37,8 +46,8 @@ public class ComplexFilter extends Filter {
         bmp = convo.getBmp();
         bmp.getPixels(pixels, 0, width, 0, 0, width, height);
         bmp.getPixels(pixelsf, 0, width, 0, 0, width, height);
-        int red = 0, green = 0, blue = 0, RED = 0, GREEN = 0, BLUE = 0;
-        boolean exceedThreshold = false;
+        int red, green, blue, RED, GREEN, BLUE;
+        boolean exceedThreshold;
         for (int i = 4; i < width - 4; i++){
             for (int j = 4; j < height - 4; j++) {
                 red = Math.abs(Color.red(pixels[i+j*width-1])-Color.red(pixels[i+j*width+1])) + Math.abs(Color.red(pixels[i+(j-1)*width])-Color.red(pixels[i+(j+1)*width]));
@@ -62,11 +71,7 @@ public class ComplexFilter extends Filter {
                             red = Math.abs(Color.red(pixels[i+(j-1)*width-1])-Color.red(pixels[i+(j+1)*width+1])) + Math.abs(Color.red(pixels[i+(j-1)*width+1])-Color.red(pixels[i+(j+1)*width-1]));
                             green = Math.abs(Color.green(pixels[i+(j-1)*width-1])-Color.green(pixels[i+(j+1)*width+1])) + Math.abs(Color.green(pixels[i+(j-1)*width+1])-Color.green(pixels[i+(j+1)*width-1]));
                             blue = Math.abs(Color.blue(pixels[i+(j-1)*width-1])-Color.blue(pixels[i+(j+1)*width+1])) + Math.abs(Color.blue(pixels[i+(j-1)*width+1])-Color.blue(pixels[i+(j+1)*width-1]));
-                            if (red+green+blue > threshold) {
-                                exceedThreshold = true;
-                            } else {
-                                exceedThreshold = false;
-                            }
+                            exceedThreshold = (red+green+blue > threshold);
                         }
                     }
                 }

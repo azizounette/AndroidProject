@@ -4,9 +4,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 
 /**
- * Created by Aziza on 03/02/2018.
+ * This class applies convolutions to the bitmap.
  */
-
 public class Convolution extends Filter {
 
     public Convolution(Bitmap bmp){
@@ -50,6 +49,10 @@ public class Convolution extends Filter {
         return SATs;
     }
 
+    /**
+     * This method applies an average blurring effect by using the Summed area table technique.
+     * @param radius radius of effect of the blur
+     */
     public void averageBlurring (int radius) {
         Bitmap bmp = this.getBmp();
         int n = width * height;
@@ -73,6 +76,9 @@ public class Convolution extends Filter {
     }
     /* End of average blurring effect */
 
+    /**
+     * This method applies a Laplacien filter.
+     */
     public void laplacien(){
         Bitmap bmp = this.getBmp();
         int[] pixels = new int[width * height];
@@ -93,7 +99,13 @@ public class Convolution extends Filter {
         return (float) (10*radius*Math.exp(-((y-radius)*(y-radius)+(x-radius)*(x-radius))/(2*sigma*sigma)));
     }
 
-    // 1 = AverageBlur    2 = GaussianBlur    0/3 = Contouring    4 = Sharpening
+    /**
+     * This method create the matrix of convolution needed according to the case called.
+     * @param cases case called : 1 = AverageBlur    2 = GaussianBlur
+     *                            0/3 = Contouring(horizontally/vertically)    4 = Sharpening
+     * @param dimension dimension of the matrix to return.
+     * @return the convolution matrix
+     */
     public int[] convolutionMatrix (int cases , int dimension) {
         int[] res = new int[dimension*dimension];
         switch (cases) {
@@ -124,7 +136,11 @@ public class Convolution extends Filter {
         return res;
     }
 
-    //TODO   1 = AverageBlur    2 = GaussianBlur    3 = Contouring    4 = Sharpening
+    //1 = AverageBlur    2 = GaussianBlur    3 = Contouring    4 = Sharpening
+    /**
+     * This method applies a convolution.
+     * @param matrixConvo the matrix to apply
+     */
     public void convolution (int[] matrixConvo) {
         Bitmap bmp = this.getBmp();
         
@@ -161,6 +177,11 @@ public class Convolution extends Filter {
         bmp.setPixels(pixelsf, 0, width,  0, 0, width, height);
     }
 
+    /**
+     * This method applies a contouring filter : if two close pixels are very different, it will be
+     * shown on the bitmap with a lighter gray, otherwise it will be shown on the bitmap with a
+     * darker gray.
+     */
     public void contouring () {
         Bitmap bmp = this.getBmp();
 
