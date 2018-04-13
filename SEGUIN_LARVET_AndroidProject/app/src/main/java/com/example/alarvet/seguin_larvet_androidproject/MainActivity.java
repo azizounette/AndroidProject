@@ -24,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -410,6 +411,9 @@ public class MainActivity extends AppCompatActivity {
                     dialogInterface.dismiss();
                 }
             });
+            if(mView.getParent() != null){
+                ((ViewGroup)mView.getParent()).removeView(mView);
+            }
             mBuilder.setView(mView);
             dialog = mBuilder.create();
             dialog.show();
@@ -497,6 +501,9 @@ public class MainActivity extends AppCompatActivity {
                     dialogInterface.dismiss();
                 }
             });
+            if(mView.getParent() != null){
+                ((ViewGroup)mView.getParent()).removeView(mView);
+            }
             mBuilder.setView(mView);
             dialog = mBuilder.create();
             dialog.show();
@@ -519,7 +526,7 @@ public class MainActivity extends AppCompatActivity {
             mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    convolutionFilter.convolution(convolutionFilter.convolutionMatrix(2, mSpinner.getSelectedItemPosition()));
+                    convolutionFilter.convolution(convolutionFilter.convolutionMatrix(2, 1+2*mSpinner.getSelectedItemPosition()));
                     dialogInterface.dismiss();
                 }
             });
@@ -529,6 +536,9 @@ public class MainActivity extends AppCompatActivity {
                     dialogInterface.dismiss();
                 }
             });
+            if(mView.getParent() != null){
+                ((ViewGroup)mView.getParent()).removeView(mView);
+            }
             mBuilder.setView(mView);
             dialog = mBuilder.create();
             dialog.show();
@@ -545,7 +555,7 @@ public class MainActivity extends AppCompatActivity {
             mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    convolutionFilter.averageBlurring(i);
+                    convolutionFilter.convolution(convolutionFilter.convolutionMatrix(1, 1+2*mSpinner.getSelectedItemPosition()));
                     dialogInterface.dismiss();
                 }
             });
@@ -555,6 +565,9 @@ public class MainActivity extends AppCompatActivity {
                     dialogInterface.dismiss();
                 }
             });
+            if(mView.getParent() != null){
+                ((ViewGroup)mView.getParent()).removeView(mView);
+            }
             mBuilder.setView(mView);
             dialog = mBuilder.create();
             dialog.show();
