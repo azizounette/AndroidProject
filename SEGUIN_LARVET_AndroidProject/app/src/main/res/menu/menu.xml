@@ -4,90 +4,22 @@
 
     <item
         android:id="@+id/phototaking"
+        android:icon="@android:drawable/ic_menu_camera"
         android:title="Take photo"
         app:showAsAction="always" />
     <item
         android:id="@+id/gallery"
+        android:icon="@android:drawable/ic_menu_gallery"
         android:title="Gallery"
         app:showAsAction="always" />
     <item
         android:id="@+id/resetButton"
+        android:icon="@android:drawable/ic_menu_revert"
         android:title="Reset"
         app:showAsAction="always" />
     <item
         android:id="@+id/applyButton"
+        android:icon="@android:drawable/ic_lock_idle_lock"
         android:title="Apply"
         app:showAsAction="always" />
-    <item
-        android:id="@+id/changeTint"
-        android:title="Add color filter"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/toGray"
-        android:title="Add gray filter"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/grayAndTint"
-        android:title="Add gray filter except a tint"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/sepia"
-        android:title="Add sepia filter"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/equalizeGray"
-        android:title="Equalize the gray histogram"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/equalizeColors"
-        android:title="Equalize the colors histogram"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/contrastChange"
-        android:title="Change the contrast"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/warmthChange"
-        android:title="Change the warmth"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/magicWand"
-        android:title="Change the image unexpectedly"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/overexposure"
-        android:title="Overexpose"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/luminosityChange"
-        android:title="Change the luminosity"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/averageBlurring"
-        android:title="Add an Average blurring effect"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/gaussianBlurring"
-        android:title="Add a Gaussian blurring effect"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/contouring"
-        android:title="Show the contour"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/laplacien"
-        android:title="Apply Laplacien effect"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/sharpening"
-        android:title="Sharpen the image"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/warhol"
-        android:title="Add a Warhol effect"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/cartoon"
-        android:title="Add a cartoon effect"
-        app:showAsAction="never" />
 </menu>
