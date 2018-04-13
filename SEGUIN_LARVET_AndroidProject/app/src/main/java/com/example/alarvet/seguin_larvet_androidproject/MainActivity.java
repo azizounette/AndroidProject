@@ -249,6 +249,24 @@ public class MainActivity extends AppCompatActivity {
      */
     float oldDist = 1f;
 
+    /**
+     * Used to set a minimum limit on the zooming action.
+     */
+    static final float MINZOOM = 0.7f;
+
+    /**
+     * Used to set a maximum limit on the zooming action.
+     */
+    static final float MAXZOOM = 2.5f;
+
+    private float dx; // postTranslate X distance
+    private float dy; // postTranslate Y distance
+    private float[] matrixValues = new float[9];
+    float matrixX = 0; // X coordinate of matrix inside the ImageView
+    float matrixY = 0; // Y coordinate of matrix inside the ImageView
+    float width = 0; // width of drawable
+    float height = 0; // height of drawable
+
 
     // Variable used for saving the bitmap before an orientation change
     /**
@@ -265,7 +283,6 @@ public class MainActivity extends AppCompatActivity {
      * Used to save the bitmap used to apply temporary changes before an orientation change.
      */
     private static final String SAVE_APPLIED_BMP = "SaveAppliedBitmap";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -298,6 +315,7 @@ public class MainActivity extends AppCompatActivity {
         if (!canSave) {
             saveButton.setVisibility(View.INVISIBLE);
         }
+
     }
 
 
@@ -432,6 +450,16 @@ public class MainActivity extends AppCompatActivity {
 
     /* HANDLING TOUCH EVENTS */
 
+    /**
+     * Touch events inspired from:
+     * https://stackoverflow.com/questions/3813119/scale-limits-on-pinch-zoom-of-android
+     *
+     * Limitation on zooming inspired by:
+     * https://stackoverflow.com/questions/3881187/imageview-pinch-zoom-scale-limits-and-pan-bounds/18395969#18395969
+     *
+     * Limitation on scrolling inspired by:
+     * https://stackoverflow.com/questions/12029204/imageview-drag-limitation-in-android
+     */
     View.OnTouchListener handleTouch = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
@@ -463,14 +491,53 @@ public class MainActivity extends AppCompatActivity {
                 case MotionEvent.ACTION_MOVE:
                     if (mode == DRAG) {
                         matrix.set(savedMatrix);
-                        matrix.postTranslate(event.getX() - start.x, event.getY()
-                                - start.y);
+
+                        matrix.getValues(matrixValues);
+                        matrixX = matrixValues[2];
+                        matrixY = matrixValues[5];
+                        width = matrixValues[0] * (imageView.getDrawable().getIntrinsicWidth());
+                        height = matrixValues[4] * (imageView.getDrawable().getIntrinsicHeight());
+
+
+                        dx = event.getX() - start.x;
+                        dy = event.getY() - start.y;
+
+                        //if the image goes outside the left bound
+                        if (matrixX + dx  > 0){
+                            dx = -matrixX;
+                        }
+                        //if the image goes outside the right bound
+                        if(matrixX + dx + width < imageView.getWidth()){
+                            dx = imageView.getWidth() - matrixX - width;
+                        }
+                        //if the image goes outside the top bound
+                        if (matrixY + dy > 0){
+                            dy = -matrixY;
+                        }
+                        //if the image goes outside the bottom bound
+                        if(matrixY + dy + height < imageView.getHeight()){
+                            dy = imageView.getHeight() - matrixY - height;
+                        }
+
+                        matrix.postTranslate(dx, dy);
                     } else if (mode == ZOOM) {
+                        float[] f = new float[9];
+
                         float newDist = spacing(event);
                         if (newDist > 10f) {
                             matrix.set(savedMatrix);
-                            float scale = newDist / oldDist;
-                            matrix.postScale(scale, scale, mid.x, mid.y);
+                            float tScale = newDist / oldDist;
+                            matrix.postScale(tScale, tScale, mid.x, mid.y);
+                        }
+
+                        matrix.getValues(f);
+                        float scaleX = f[Matrix.MSCALE_X];
+                        float scaleY = f[Matrix.MSCALE_Y];
+
+                        if(scaleX <= MINZOOM) {
+                            matrix.postScale((0.7f)/scaleX, (0.7f)/scaleY, mid.x, mid.y);
+                        } else if(scaleX >= MAXZOOM) {
+                            matrix.postScale((2.5f)/scaleX, (2.5f)/scaleY, mid.x, mid.y);
                         }
                     }
                     break;
