@@ -281,6 +281,12 @@ public class MainActivity extends AppCompatActivity {
      */
     private static final String SAVE_APPLIED_BMP = "SaveAppliedBitmap";
 
+    private AlertDialog.Builder mBuilder;
+    private AlertDialog dialog;
+    private ArrayAdapter<String> adapter;
+    private String[] mArray;
+    private View mView;
+    private Spinner mSpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -346,10 +352,10 @@ public class MainActivity extends AppCompatActivity {
         luminosityButton.setOnClickListener(luminosityButtonListener);
 
         Button averageBlurringButton = (Button) findViewById(R.id.averageBlurringButton);
-        averageBlurringButton.setOnClickListener(averageBluringButtonListener);
+        averageBlurringButton.setOnClickListener(averageBlurringButtonListener);
 
         Button gaussianBlurringButton = (Button) findViewById(R.id.gaussianBlurringButton);
-        gaussianBlurringButton.setOnClickListener(gaussianBluringButtonListener);
+        gaussianBlurringButton.setOnClickListener(gaussianBlurringButtonListener);
 
         Button contouringButton = (Button) findViewById(R.id.contouringButton);
         contouringButton.setOnClickListener(contouringButtonListener);
@@ -367,13 +373,6 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
     }
-
-    AlertDialog.Builder mBuilder;
-    AlertDialog dialog;
-    ArrayAdapter<String> adapter;
-    String[] mArray;
-    View mView;
-    Spinner mSpinner;
 
     private View.OnClickListener changeTintButtonListener = new View.OnClickListener(){
         public void onClick(View v){
@@ -505,7 +504,7 @@ public class MainActivity extends AppCompatActivity {
             colourFilter.toGray();
         }
     };
-    private View.OnClickListener gaussianBluringButtonListener = new View.OnClickListener(){
+    private View.OnClickListener gaussianBlurringButtonListener = new View.OnClickListener(){
         public void onClick(View v){
             onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
             mBuilder.setTitle("Amount of Blur desired");
@@ -534,7 +533,7 @@ public class MainActivity extends AppCompatActivity {
             dialog.show();
         }
     };
-    private View.OnClickListener averageBluringButtonListener = new View.OnClickListener(){
+    private View.OnClickListener averageBlurringButtonListener = new View.OnClickListener(){
         public void onClick(View v){
             onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
             mBuilder.setTitle("Amount of Blur desired");
@@ -709,7 +708,7 @@ public class MainActivity extends AppCompatActivity {
     View.OnTouchListener handleTouch = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-
+            v.performClick();
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
                     savedMatrix.set(matrix);
