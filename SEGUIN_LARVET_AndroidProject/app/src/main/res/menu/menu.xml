@@ -13,6 +13,11 @@
         android:title="Gallery"
         app:showAsAction="always" />
     <item
+        android:id="@+id/save"
+        android:icon="@android:drawable/ic_menu_save"
+        android:title="save"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/resetButton"
         android:icon="@android:drawable/ic_menu_revert"
         android:title="Reset"

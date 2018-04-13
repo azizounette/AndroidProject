@@ -57,11 +57,6 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap originalBitmap;
 
     /**
-     * Button used to save the picture.
-     */
-    private Button saveButton;
-
-    /**
      * Maximum width of the bitmap. It is used for rescaling.
      */
     private static final int MAX_BITMAP_WIDTH = 1000;
@@ -286,6 +281,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private static final String SAVE_APPLIED_BMP = "SaveAppliedBitmap";
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -311,12 +307,6 @@ public class MainActivity extends AppCompatActivity {
         createSeekBar();
 
         setBarVisibility(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-
-        saveButton = (Button) findViewById(R.id.saveButton);
-        saveButton.setOnClickListener(saveButtonListener);
-        if (!canSave) {
-            saveButton.setVisibility(View.INVISIBLE);
-        }
 
         mBuilder = new AlertDialog.Builder(MainActivity.this);
         mView = getLayoutInflater().inflate(R.layout.dialog_spinner, null);
@@ -1042,14 +1032,9 @@ public class MainActivity extends AppCompatActivity {
     private void checkPermissions() {
         int apiLevel = Build.VERSION.SDK_INT;
         String[] permissions;
-        if (apiLevel < 16) {
-            permissions = new String[]{Manifest.permission.CAMERA,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        } else {
-            permissions = new String[]{Manifest.permission.CAMERA,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE};
-        }
+        permissions = new String[]{Manifest.permission.CAMERA,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        Manifest.permission.READ_EXTERNAL_STORAGE};
 
         ActivityCompat.requestPermissions(this,permissions, 0);
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
@@ -1075,11 +1060,7 @@ public class MainActivity extends AppCompatActivity {
         canTakePicture = (grantResults[0] == PackageManager.PERMISSION_GRANTED);
         canSave = (grantResults[1] == PackageManager.PERMISSION_GRANTED);
         canPickFromGallery = (grantResults[2] == PackageManager.PERMISSION_GRANTED);
-        if (!canSave) {
-            saveButton.setVisibility(View.INVISIBLE);
-        } else {
-            saveButton.setVisibility(View.VISIBLE);
-        }
+
         invalidateOptionsMenu();
     }
 
@@ -1129,21 +1110,12 @@ public class MainActivity extends AppCompatActivity {
         resetAppliedBitmap();
     }
 
-    /**
-     * Listener bound to the button used to save a picture.
-     */
-    private View.OnClickListener saveButtonListener = new View.OnClickListener(){
-        public void onClick(View v){
-            saveImage();
-        }
-    };
-
+    @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        invalidateOptionsMenu();
         menu.getItem(0).setVisible(canTakePicture);
         menu.getItem(1).setVisible(canPickFromGallery);
-        super.onPrepareOptionsMenu(menu);
-        return true;
+        menu.getItem(2).setVisible(canSave);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -1164,6 +1136,9 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.gallery:
                 onImageGalleryClicked();
+                return true;
+            case R.id.save:
+                saveImage();
                 return true;
             default:
                 return false;
