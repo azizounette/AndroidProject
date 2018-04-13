@@ -1030,7 +1030,6 @@ public class MainActivity extends AppCompatActivity {
      * Checks the permissions for the application.
      */
     private void checkPermissions() {
-        int apiLevel = Build.VERSION.SDK_INT;
         String[] permissions;
         permissions = new String[]{Manifest.permission.CAMERA,
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
