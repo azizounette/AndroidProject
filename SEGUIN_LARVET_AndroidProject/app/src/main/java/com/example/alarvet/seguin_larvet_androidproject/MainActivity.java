@@ -822,7 +822,9 @@ public class MainActivity extends AppCompatActivity {
      * Resets the ImageView to an icon and clears all the bitmaps that we use.
      * It is used for performance and memory leaks issues.
      */
-    private void clearBitmap(){
+    private void clearEverything(){
+        matrix = new Matrix();
+        imageView.setImageMatrix(matrix);
         imageView.setImageResource(R.mipmap.ic_launcher);
         bitmap.recycle();
         bitmap = null;
@@ -880,7 +882,7 @@ public class MainActivity extends AppCompatActivity {
      * Handles the case where the user wants to take a picture thanks to an intent.
      */
     private void takePicture(){
-        clearBitmap();
+        clearEverything();
 
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
@@ -916,7 +918,7 @@ public class MainActivity extends AppCompatActivity {
      * thanks to an intent.
      */
     public void onImageGalleryClicked() {
-        clearBitmap();
+        clearEverything();
 
         Intent picturePickedIntent = new Intent(Intent.ACTION_PICK);
 
