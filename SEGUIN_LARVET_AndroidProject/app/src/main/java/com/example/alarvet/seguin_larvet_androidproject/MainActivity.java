@@ -19,6 +19,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -316,7 +317,249 @@ public class MainActivity extends AppCompatActivity {
             saveButton.setVisibility(View.INVISIBLE);
         }
 
+        mBuilder = new AlertDialog.Builder(MainActivity.this);
+        mView = getLayoutInflater().inflate(R.layout.dialog_spinner, null);
+        mSpinner = mView.findViewById(R.id.spinner);
+
+        Button changeTintButton = (Button) findViewById(R.id.changeTintButton);
+        changeTintButton.setOnClickListener(changeTintButtonListener);
+
+        Button grayButton = (Button) findViewById(R.id.grayButton);
+        grayButton.setOnClickListener(toGrayButtonListener);
+
+        Button grayAndTintButton = (Button) findViewById(R.id.grayAndTintButton);
+        grayAndTintButton.setOnClickListener(grayAndTintButtonListener);
+
+        Button sepiaButton = (Button) findViewById(R.id.sepiaButton);
+        sepiaButton.setOnClickListener(sepiaButtonListener);
+
+        Button equalizeGrayButton = (Button) findViewById(R.id.equalizeGrayButton);
+        equalizeGrayButton.setOnClickListener(equalizeGrayButtonListener);
+
+        Button equalizeColorsButton = (Button) findViewById(R.id.equalizeColorsButton);
+        equalizeColorsButton.setOnClickListener(equalizeColorsButtonListener);
+
+        Button contrastButton = (Button) findViewById(R.id.contrastButton);
+        contrastButton.setOnClickListener(contrastButtonListener);
+
+        Button warmthButton = (Button) findViewById(R.id.warmthButton);
+        warmthButton.setOnClickListener(warmthButtonListener);
+
+        Button magicWandButton = (Button) findViewById(R.id.magicWandButton);
+        magicWandButton.setOnClickListener(magicWandButtonListener);
+
+        Button overexposeButton = (Button) findViewById(R.id.overexposureButton);
+        overexposeButton.setOnClickListener(overexposureButtonlistener);
+
+        Button luminosityButton = (Button) findViewById(R.id.luminosityButton);
+        luminosityButton.setOnClickListener(luminosityButtonListener);
+
+        Button averageBlurringButton = (Button) findViewById(R.id.averageBlurringButton);
+        averageBlurringButton.setOnClickListener(averageBluringButtonListener);
+
+        Button gaussianBlurringButton = (Button) findViewById(R.id.gaussianBlurringButton);
+        gaussianBlurringButton.setOnClickListener(gaussianBluringButtonListener);
+
+        Button contouringButton = (Button) findViewById(R.id.contouringButton);
+        contouringButton.setOnClickListener(contouringButtonListener);
+
+        Button laplacienButton = (Button) findViewById(R.id.laplacienButton);
+        laplacienButton.setOnClickListener(laplacienButtonListener);
+
+        Button warholButton = (Button) findViewById(R.id.warholButton);
+        warholButton.setOnClickListener(warholButtonListener);
+
+        Button cartoonButton = (Button) findViewById(R.id.cartoonButton);
+        cartoonButton.setOnClickListener(cartoonButtonListener);
+
+        Toolbar toolbar =   (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
     }
+
+    AlertDialog.Builder mBuilder;
+    AlertDialog dialog;
+    ArrayAdapter<String> adapter;
+    String[] mArray;
+    View mView;
+    Spinner mSpinner;
+
+    private View.OnClickListener changeTintButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.VISIBLE,View.VISIBLE,View.VISIBLE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+        }
+    };
+    private View.OnClickListener cartoonButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            mBuilder.setTitle("Threshold to apply");
+            mArray = getResources().getStringArray(R.array.threshold);
+            adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mSpinner.setAdapter(adapter);
+            mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    complexFilter.cartoon(10*mSpinner.getSelectedItemPosition());
+                    dialogInterface.dismiss();
+                }
+            });
+            mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+            mBuilder.setView(mView);
+            dialog = mBuilder.create();
+            dialog.show();
+        }
+    };
+    private View.OnClickListener warholButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.VISIBLE);
+        }
+    };
+    private View.OnClickListener laplacienButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            convolutionFilter.laplacien();
+        }
+    };
+    private View.OnClickListener contouringButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            convolutionFilter.contouring();
+        }
+    };
+    private View.OnClickListener luminosityButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.VISIBLE,View.GONE,View.GONE,View.GONE);
+        }
+    };
+    private View.OnClickListener overexposureButtonlistener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            luminosityFilter.overexposure();
+        }
+    };
+    private View.OnClickListener magicWandButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.VISIBLE,View.GONE);
+        }
+    };
+    private View.OnClickListener warmthButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.VISIBLE,View.GONE,View.GONE);
+        }
+    };
+    private View.OnClickListener contrastButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.VISIBLE,View.GONE,View.GONE,View.GONE,View.GONE);
+        }
+    };
+    private View.OnClickListener equalizeColorsButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            contrastFilter.equalizeColors();
+        }
+    };
+    private View.OnClickListener equalizeGrayButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            contrastFilter.equalizeGray();
+        }
+    };
+    private View.OnClickListener sepiaButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            colourFilter.sepia();
+        }
+    };
+    private View.OnClickListener grayAndTintButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            mBuilder.setTitle("Choose the hue of the color wanted");
+            mArray = getResources().getStringArray(R.array.colorHue);
+            adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mSpinner.setAdapter(adapter);
+            mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    colourFilter.grayAndTint(10*mSpinner.getSelectedItemPosition());
+                    dialogInterface.dismiss();
+                }
+            });
+            mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+            mBuilder.setView(mView);
+            dialog = mBuilder.create();
+            dialog.show();
+        }
+    };
+    private View.OnClickListener toGrayButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            colourFilter.toGray();
+        }
+    };
+    private View.OnClickListener gaussianBluringButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            mBuilder.setTitle("Amount of Blur desired");
+            mArray = getResources().getStringArray(R.array.amountBlur);
+            adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mSpinner.setAdapter(adapter);
+            mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    convolutionFilter.convolution(convolutionFilter.convolutionMatrix(2, mSpinner.getSelectedItemPosition()));
+                    dialogInterface.dismiss();
+                }
+            });
+            mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+            mBuilder.setView(mView);
+            dialog = mBuilder.create();
+            dialog.show();
+        }
+    };
+    private View.OnClickListener averageBluringButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            mBuilder.setTitle("Amount of Blur desired");
+            mArray = getResources().getStringArray(R.array.amountBlur);
+            adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mSpinner.setAdapter(adapter);
+            mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    convolutionFilter.averageBlurring(i);
+                    dialogInterface.dismiss();
+                }
+            });
+            mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+            mBuilder.setView(mView);
+            dialog = mBuilder.create();
+            dialog.show();
+        }
+    };
 
 
     @Override
@@ -894,13 +1137,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
-        AlertDialog.Builder mBuilder = new AlertDialog.Builder(MainActivity.this);
-        View mView = getLayoutInflater().inflate(R.layout.dialog_spinner, null);
-        final Spinner mSpinner = mView.findViewById(R.id.spinner);
-        AlertDialog dialog;
-        ArrayAdapter<String> adapter;
-        String[] mArray;
-
         switch (item.getItemId()) {
             case R.id.applyButton:
                 appliedBitmap = bitmap.copy(bitmap.getConfig(), true);
@@ -913,152 +1149,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.gallery:
                 onImageGalleryClicked();
-                return true;
-            case R.id.cartoon:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                mBuilder.setTitle("Amount of Blur desired");
-                mArray = getResources().getStringArray(R.array.threshold);
-                adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                mSpinner.setAdapter(adapter);
-                mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        complexFilter.cartoon(mSpinner.getSelectedItemPosition());
-                        dialogInterface.dismiss();
-                    }
-                });
-                mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-                mBuilder.setView(mView);
-                dialog = mBuilder.create();
-                dialog.show();
-                return true;
-            case R.id.warhol:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.VISIBLE);
-                return true;
-            case R.id.sharpening:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                convolutionFilter.convolution(convolutionFilter.convolutionMatrix(4,3));
-                return true;
-            case R.id.laplacien:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                convolutionFilter.laplacien();
-                return true;
-            case R.id.contouring:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                convolutionFilter.contouring();
-                return true;
-            case R.id.luminosityChange:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.VISIBLE,View.GONE,View.GONE,View.GONE);
-                return true;
-            case R.id.overexposure:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                luminosityFilter.overexposure();
-                return true;
-            case R.id.magicWand:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.VISIBLE,View.GONE);
-                return true;
-            case R.id.warmthChange:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.VISIBLE,View.GONE,View.GONE);
-                return true;
-            case R.id.contrastChange:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.VISIBLE,View.GONE,View.GONE,View.GONE,View.GONE);
-                return true;
-            case R.id.equalizeColors:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                contrastFilter.equalizeColors();
-                return true;
-            case R.id.equalizeGray:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                contrastFilter.equalizeGray();
-                return true;
-            case R.id.sepia:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                colourFilter.sepia();
-                return true;
-            case R.id.grayAndTint:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                mBuilder.setTitle("Choose the hue of the color wanted");
-                mArray = getResources().getStringArray(R.array.colorHue);
-                adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                mSpinner.setAdapter(adapter);
-                mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        colourFilter.grayAndTint(10*mSpinner.getSelectedItemPosition());
-                        dialogInterface.dismiss();
-                    }
-                });
-                mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-                mBuilder.setView(mView);
-                dialog = mBuilder.create();
-                dialog.show();
-                return true;
-            case R.id.toGray:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                colourFilter.toGray();
-                return true;
-            case R.id.changeTint:
-                onFilterCalled(View.VISIBLE,View.VISIBLE,View.VISIBLE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                return true;
-            case R.id.averageBlurring:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                mBuilder.setTitle("Amount of Blur desired");
-                mArray = getResources().getStringArray(R.array.amountBlur);
-                adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                mSpinner.setAdapter(adapter);
-                mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        convolutionFilter.averageBlurring(mSpinner.getSelectedItemPosition());
-                        dialogInterface.dismiss();
-                    }
-                });
-                mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-                mBuilder.setView(mView);
-                dialog = mBuilder.create();
-                dialog.show();
-                return true;
-            case R.id.gaussianBlurring:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                mBuilder.setTitle("Amount of Blur desired");
-                mArray = getResources().getStringArray(R.array.amountBlur);
-                adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                mSpinner.setAdapter(adapter);
-                mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        convolutionFilter.convolution(convolutionFilter.convolutionMatrix(2, mSpinner.getSelectedItemPosition()));
-                        dialogInterface.dismiss();
-                    }
-                });
-                mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-                mBuilder.setView(mView);
-                dialog = mBuilder.create();
-                dialog.show();
                 return true;
             default:
                 return false;
