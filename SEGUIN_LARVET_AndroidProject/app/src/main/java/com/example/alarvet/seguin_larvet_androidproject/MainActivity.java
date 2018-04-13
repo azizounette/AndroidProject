@@ -827,15 +827,15 @@ public class MainActivity extends AppCompatActivity {
     private void clearEverything(){
         matrix = new Matrix();
         imageView.setImageMatrix(matrix);
-        imageView.setImageResource(R.mipmap.ic_launcher);
+
         bitmap.recycle();
-        bitmap = null;
-
         appliedBitmap.recycle();
-        appliedBitmap = null;
-
         originalBitmap.recycle();
-        originalBitmap = null;
+
+        originalBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+        appliedBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+        bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+        imageView.setImageBitmap(bitmap);
     }
 
     /**
