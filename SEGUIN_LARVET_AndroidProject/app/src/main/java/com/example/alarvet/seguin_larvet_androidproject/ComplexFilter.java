@@ -1,5 +1,6 @@
 package com.example.alarvet.seguin_larvet_androidproject;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 
@@ -7,8 +8,8 @@ import android.graphics.Color;
  * This class applies complex methods to the bitmap : Warhol effect and Cartoon effect.
  */
 public class ComplexFilter extends Filter {
-    public ComplexFilter(Bitmap bmp){
-        super(bmp);
+    public ComplexFilter(Bitmap bmp, Context context){
+        super(bmp, context);
     }
 
     /**
@@ -41,7 +42,7 @@ public class ComplexFilter extends Filter {
         Bitmap bmp = this.getBmp();
         int[] pixels = new int[width * height];
         int[] pixelsf = new int[width * height];
-        Convolution convo = new Convolution(bmp);
+        Convolution convo = new Convolution(bmp, getContext());
         convo.averageBlurring(5);
         bmp = convo.getBmp();
         bmp.getPixels(pixels, 0, width, 0, 0, width, height);

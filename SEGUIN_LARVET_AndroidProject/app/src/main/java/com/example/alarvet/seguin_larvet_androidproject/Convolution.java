@@ -1,5 +1,6 @@
 package com.example.alarvet.seguin_larvet_androidproject;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 
@@ -8,8 +9,8 @@ import android.graphics.Color;
  */
 public class Convolution extends Filter {
 
-    public Convolution(Bitmap bmp){
-        super(bmp);
+    public Convolution(Bitmap bmp, Context context){
+        super(bmp, context);
     }
 
     /* Average blurring effect */
@@ -217,4 +218,6 @@ public class Convolution extends Filter {
         
         bmp.setPixels(pixelsf, 0, width,  0, 0, width, height);
     }
+
+
 }

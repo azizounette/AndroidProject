@@ -1,5 +1,6 @@
 package com.example.alarvet.seguin_larvet_androidproject;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 
@@ -9,17 +10,23 @@ import android.graphics.Color;
  */
 public abstract class Filter {
     private final Bitmap bmp;
+    private final Context context;
     protected int height;
     protected int width;
 
-    public Filter(Bitmap bmp) {
+    public Filter(Bitmap bmp, Context context) {
         this.bmp = bmp;
+        this.context = context;
         height = bmp.getHeight();
         width = bmp.getWidth();
     }
 
     public  Bitmap getBmp() {
         return bmp;
+    }
+
+    public  Context getContext() {
+        return context;
     }
 
     /**

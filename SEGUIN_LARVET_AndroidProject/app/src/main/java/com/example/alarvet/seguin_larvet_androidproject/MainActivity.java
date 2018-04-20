@@ -10,7 +10,6 @@ import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
@@ -1018,11 +1017,11 @@ public class MainActivity extends AppCompatActivity {
      * Creates all the filters used to apply changes to the bitmap.
      */
     private void createFilters() {
-        colourFilter = new Colour(bitmap);
-        convolutionFilter = new Convolution(bitmap);
-        complexFilter = new ComplexFilter(bitmap);
-        contrastFilter = new Contrast(bitmap);
-        luminosityFilter = new Luminosity(bitmap);
+        colourFilter = new Colour(bitmap, this);
+        convolutionFilter = new Convolution(bitmap, this);
+        complexFilter = new ComplexFilter(bitmap, this);
+        contrastFilter = new Contrast(bitmap, this);
+        luminosityFilter = new Luminosity(bitmap, this);
     }
 
     /**

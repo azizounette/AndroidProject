@@ -1,5 +1,6 @@
 package com.example.alarvet.seguin_larvet_androidproject;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 
@@ -8,8 +9,8 @@ import android.graphics.Color;
  */
 public class Luminosity extends Filter {
 
-    public Luminosity(Bitmap bmp){
-        super(bmp);
+    public Luminosity(Bitmap bmp, Context context){
+        super(bmp, context);
     }
 
     /**
