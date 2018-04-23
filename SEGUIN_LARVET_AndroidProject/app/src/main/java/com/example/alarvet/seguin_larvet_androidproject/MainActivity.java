@@ -10,7 +10,6 @@ import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
@@ -19,10 +18,12 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -53,11 +54,6 @@ public class MainActivity extends AppCompatActivity {
      * The bitmap we keep in case of a reset.
      */
     private Bitmap originalBitmap;
-
-    /**
-     * Button used to save the picture.
-     */
-    private Button saveButton;
 
     /**
      * Maximum width of the bitmap. It is used for rescaling.
@@ -249,6 +245,52 @@ public class MainActivity extends AppCompatActivity {
      */
     float oldDist = 1f;
 
+    /**
+     * Used to set a minimum limit on the zooming action.
+     */
+    static final float MINZOOM = 0.7f;
+
+    /**
+     * Used to set a maximum limit on the zooming action.
+     */
+    static final float MAXZOOM = 4f;
+
+    /**
+     * Used for scrolling. postTranslate X distance.
+     */
+    private float dx;
+
+    /**
+     * Used for scrolling. postTranslate Y distance.
+     */
+    private float dy;
+
+    /**
+     * Used to store the values of the Matrix matrix.
+     * @see #matrix
+     */
+    private float[] matrixValues = new float[9];
+
+    /**
+     * X coordinate of matrix inside the ImageView.
+     */
+    float matrixX = 0;
+
+    /**
+     * Y coordinate of matrix inside the ImageView.
+     */
+    float matrixY = 0;
+
+    /**
+     * Width of the drawable created from the ImageView.
+     */
+    float width = 0;
+
+    /**
+     * Height of the drawable created from the ImageView.
+     */
+    float height = 0;
+
 
     // Variable used for saving the bitmap before an orientation change
     /**
@@ -266,6 +308,12 @@ public class MainActivity extends AppCompatActivity {
      */
     private static final String SAVE_APPLIED_BMP = "SaveAppliedBitmap";
 
+    private AlertDialog.Builder mBuilder;
+    private AlertDialog dialog;
+    private ArrayAdapter<String> adapter;
+    private String[] mArray;
+    private View mView;
+    private Spinner mSpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -293,12 +341,263 @@ public class MainActivity extends AppCompatActivity {
 
         setBarVisibility(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
 
-        saveButton = (Button) findViewById(R.id.saveButton);
-        saveButton.setOnClickListener(saveButtonListener);
-        if (!canSave) {
-            saveButton.setVisibility(View.INVISIBLE);
-        }
+        mBuilder = new AlertDialog.Builder(MainActivity.this);
+        mView = getLayoutInflater().inflate(R.layout.dialog_spinner, null);
+        mSpinner = mView.findViewById(R.id.spinner);
+
+        Button changeTintButton = (Button) findViewById(R.id.changeTintButton);
+        changeTintButton.setOnClickListener(changeTintButtonListener);
+
+        Button grayButton = (Button) findViewById(R.id.grayButton);
+        grayButton.setOnClickListener(toGrayButtonListener);
+
+        Button grayAndTintButton = (Button) findViewById(R.id.grayAndTintButton);
+        grayAndTintButton.setOnClickListener(grayAndTintButtonListener);
+
+        Button sepiaButton = (Button) findViewById(R.id.sepiaButton);
+        sepiaButton.setOnClickListener(sepiaButtonListener);
+
+        Button equalizeGrayButton = (Button) findViewById(R.id.equalizeGrayButton);
+        equalizeGrayButton.setOnClickListener(equalizeGrayButtonListener);
+
+        Button equalizeColorsButton = (Button) findViewById(R.id.equalizeColorsButton);
+        equalizeColorsButton.setOnClickListener(equalizeColorsButtonListener);
+
+        Button contrastButton = (Button) findViewById(R.id.contrastButton);
+        contrastButton.setOnClickListener(contrastButtonListener);
+
+        Button warmthButton = (Button) findViewById(R.id.warmthButton);
+        warmthButton.setOnClickListener(warmthButtonListener);
+
+        Button magicWandButton = (Button) findViewById(R.id.magicWandButton);
+        magicWandButton.setOnClickListener(magicWandButtonListener);
+
+        Button overexposeButton = (Button) findViewById(R.id.overexposureButton);
+        overexposeButton.setOnClickListener(overexposureButtonlistener);
+
+        Button luminosityButton = (Button) findViewById(R.id.luminosityButton);
+        luminosityButton.setOnClickListener(luminosityButtonListener);
+
+        Button averageBlurringButton = (Button) findViewById(R.id.averageBlurringButton);
+        averageBlurringButton.setOnClickListener(averageBlurringButtonListener);
+
+        Button gaussianBlurringButton = (Button) findViewById(R.id.gaussianBlurringButton);
+        gaussianBlurringButton.setOnClickListener(gaussianBlurringButtonListener);
+
+        Button contouringButton = (Button) findViewById(R.id.contouringButton);
+        contouringButton.setOnClickListener(contouringButtonListener);
+
+        Button laplacienButton = (Button) findViewById(R.id.laplacienButton);
+        laplacienButton.setOnClickListener(laplacienButtonListener);
+
+        Button warholButton = (Button) findViewById(R.id.warholButton);
+        warholButton.setOnClickListener(warholButtonListener);
+
+        Button cartoonButton = (Button) findViewById(R.id.cartoonButton);
+        cartoonButton.setOnClickListener(cartoonButtonListener);
+
+        Button negativeButton = (Button) findViewById(R.id.negativeButton);
+        negativeButton.setOnClickListener(negativeButtonListener);
+
+        Toolbar toolbar =   (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
     }
+
+    private View.OnClickListener changeTintButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.VISIBLE,View.VISIBLE,View.VISIBLE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+        }
+    };
+    private View.OnClickListener cartoonButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            mBuilder.setTitle("Threshold to apply");
+            mArray = getResources().getStringArray(R.array.threshold);
+            adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mSpinner.setAdapter(adapter);
+            mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    complexFilter.cartoon(10*mSpinner.getSelectedItemPosition());
+                    dialogInterface.dismiss();
+                }
+            });
+            mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+            if(mView.getParent() != null){
+                ((ViewGroup)mView.getParent()).removeView(mView);
+            }
+            mBuilder.setView(mView);
+            dialog = mBuilder.create();
+            dialog.show();
+        }
+    };
+    private View.OnClickListener warholButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.VISIBLE);
+        }
+    };
+    private View.OnClickListener laplacienButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            convolutionFilter.laplacien();
+        }
+    };
+    private View.OnClickListener contouringButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            convolutionFilter.contouring();
+        }
+    };
+    private View.OnClickListener luminosityButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.VISIBLE,View.GONE,View.GONE,View.GONE);
+        }
+    };
+    private View.OnClickListener overexposureButtonlistener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            luminosityFilter.overexposure();
+        }
+    };
+    private View.OnClickListener magicWandButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.VISIBLE,View.GONE);
+        }
+    };
+    private View.OnClickListener warmthButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.VISIBLE,View.GONE,View.GONE);
+        }
+    };
+    private View.OnClickListener contrastButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.VISIBLE,View.GONE,View.GONE,View.GONE,View.GONE);
+        }
+    };
+    private View.OnClickListener equalizeColorsButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            contrastFilter.equalizeColors();
+        }
+    };
+    private View.OnClickListener equalizeGrayButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            contrastFilter.equalizeGray();
+        }
+    };
+    private View.OnClickListener sepiaButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            colourFilter.sepia();
+        }
+    };
+    private View.OnClickListener grayAndTintButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            mBuilder.setTitle("Choose the hue of the color wanted");
+            mArray = getResources().getStringArray(R.array.colorHue);
+            adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mSpinner.setAdapter(adapter);
+            mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    colourFilter.grayAndTint(10*mSpinner.getSelectedItemPosition());
+                    dialogInterface.dismiss();
+                }
+            });
+            mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+            if(mView.getParent() != null){
+                ((ViewGroup)mView.getParent()).removeView(mView);
+            }
+            mBuilder.setView(mView);
+            dialog = mBuilder.create();
+            dialog.show();
+        }
+    };
+    private View.OnClickListener toGrayButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            colourFilter.toGray();
+        }
+    };
+    private View.OnClickListener gaussianBlurringButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            mBuilder.setTitle("Amount of Blur desired");
+            mArray = getResources().getStringArray(R.array.amountBlur);
+            adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mSpinner.setAdapter(adapter);
+            mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    convolutionFilter.convolution(convolutionFilter.convolutionMatrix(2, 1+2*mSpinner.getSelectedItemPosition()));
+                    dialogInterface.dismiss();
+                }
+            });
+            mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+            if(mView.getParent() != null){
+                ((ViewGroup)mView.getParent()).removeView(mView);
+            }
+            mBuilder.setView(mView);
+            dialog = mBuilder.create();
+            dialog.show();
+        }
+    };
+    private View.OnClickListener averageBlurringButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            mBuilder.setTitle("Amount of Blur desired");
+            mArray = getResources().getStringArray(R.array.amountBlur);
+            adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mSpinner.setAdapter(adapter);
+            mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    convolutionFilter.convolution(convolutionFilter.convolutionMatrix(1, 1+2*mSpinner.getSelectedItemPosition()));
+                    dialogInterface.dismiss();
+                }
+            });
+            mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+            if(mView.getParent() != null){
+                ((ViewGroup)mView.getParent()).removeView(mView);
+            }
+            mBuilder.setView(mView);
+            dialog = mBuilder.create();
+            dialog.show();
+        }
+    };
+    private View.OnClickListener negativeButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            colourFilter.negative();
+        }
+    };
 
 
     @Override
@@ -432,10 +731,20 @@ public class MainActivity extends AppCompatActivity {
 
     /* HANDLING TOUCH EVENTS */
 
+    /**
+     * Touch events inspired from:
+     * https://stackoverflow.com/questions/3813119/scale-limits-on-pinch-zoom-of-android
+     *
+     * Limitation on zooming inspired by:
+     * https://stackoverflow.com/questions/3881187/imageview-pinch-zoom-scale-limits-and-pan-bounds/18395969#18395969
+     *
+     * Limitation on scrolling inspired by:
+     * https://stackoverflow.com/questions/12029204/imageview-drag-limitation-in-android
+     */
     View.OnTouchListener handleTouch = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-
+            v.performClick();
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
                     savedMatrix.set(matrix);
@@ -463,14 +772,53 @@ public class MainActivity extends AppCompatActivity {
                 case MotionEvent.ACTION_MOVE:
                     if (mode == DRAG) {
                         matrix.set(savedMatrix);
-                        matrix.postTranslate(event.getX() - start.x, event.getY()
-                                - start.y);
+
+                        matrix.getValues(matrixValues);
+                        matrixX = matrixValues[2];
+                        matrixY = matrixValues[5];
+                        width = matrixValues[0] * (imageView.getDrawable().getIntrinsicWidth());
+                        height = matrixValues[4] * (imageView.getDrawable().getIntrinsicHeight());
+
+
+                        dx = event.getX() - start.x;
+                        dy = event.getY() - start.y;
+
+                        //if the image goes outside the left bound
+                        if (matrixX + dx  > 0){
+                            dx = -matrixX;
+                        }
+                        //if the image goes outside the right bound
+                        if(matrixX + dx + width < imageView.getWidth()){
+                            dx = imageView.getWidth() - matrixX - width;
+                        }
+                        //if the image goes outside the top bound
+                        if (matrixY + dy > 0){
+                            dy = -matrixY;
+                        }
+                        //if the image goes outside the bottom bound
+                        if(matrixY + dy + height < imageView.getHeight()){
+                            dy = imageView.getHeight() - matrixY - height;
+                        }
+
+                        matrix.postTranslate(dx, dy);
                     } else if (mode == ZOOM) {
+                        float[] f = new float[9];
+
                         float newDist = spacing(event);
                         if (newDist > 10f) {
                             matrix.set(savedMatrix);
-                            float scale = newDist / oldDist;
-                            matrix.postScale(scale, scale, mid.x, mid.y);
+                            float tScale = newDist / oldDist;
+                            matrix.postScale(tScale, tScale, mid.x, mid.y);
+                        }
+
+                        matrix.getValues(f);
+                        float scaleX = f[Matrix.MSCALE_X];
+                        float scaleY = f[Matrix.MSCALE_Y];
+
+                        if(scaleX <= MINZOOM) {
+                            matrix.postScale((0.7f)/scaleX, (0.7f)/scaleY, mid.x, mid.y);
+                        } else if(scaleX >= MAXZOOM) {
+                            matrix.postScale((2.5f)/scaleX, (2.5f)/scaleY, mid.x, mid.y);
                         }
                     }
                     break;
@@ -512,16 +860,18 @@ public class MainActivity extends AppCompatActivity {
      * Resets the ImageView to an icon and clears all the bitmaps that we use.
      * It is used for performance and memory leaks issues.
      */
-    private void clearBitmap(){
-        imageView.setImageResource(R.mipmap.ic_launcher);
+    private void clearEverything(){
+        matrix = new Matrix();
+        imageView.setImageMatrix(matrix);
+
         bitmap.recycle();
-        bitmap = null;
-
         appliedBitmap.recycle();
-        appliedBitmap = null;
-
         originalBitmap.recycle();
-        originalBitmap = null;
+
+        originalBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+        appliedBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+        bitmap = originalBitmap.copy(originalBitmap.getConfig(), true);
+        imageView.setImageBitmap(bitmap);
     }
 
     /**
@@ -570,7 +920,7 @@ public class MainActivity extends AppCompatActivity {
      * Handles the case where the user wants to take a picture thanks to an intent.
      */
     private void takePicture(){
-        clearBitmap();
+        clearEverything();
 
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
@@ -606,7 +956,7 @@ public class MainActivity extends AppCompatActivity {
      * thanks to an intent.
      */
     public void onImageGalleryClicked() {
-        clearBitmap();
+        clearEverything();
 
         Intent picturePickedIntent = new Intent(Intent.ACTION_PICK);
 
@@ -704,27 +1054,21 @@ public class MainActivity extends AppCompatActivity {
      * Creates all the filters used to apply changes to the bitmap.
      */
     private void createFilters() {
-        colourFilter = new Colour(bitmap);
-        convolutionFilter = new Convolution(bitmap);
-        complexFilter = new ComplexFilter(bitmap);
-        contrastFilter = new Contrast(bitmap);
-        luminosityFilter = new Luminosity(bitmap);
+        colourFilter = new Colour(bitmap, this);
+        convolutionFilter = new Convolution(bitmap, this);
+        complexFilter = new ComplexFilter(bitmap, this);
+        contrastFilter = new Contrast(bitmap, this);
+        luminosityFilter = new Luminosity(bitmap, this);
     }
 
     /**
      * Checks the permissions for the application.
      */
     private void checkPermissions() {
-        int apiLevel = Build.VERSION.SDK_INT;
         String[] permissions;
-        if (apiLevel < 16) {
-            permissions = new String[]{Manifest.permission.CAMERA,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        } else {
-            permissions = new String[]{Manifest.permission.CAMERA,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE};
-        }
+        permissions = new String[]{Manifest.permission.CAMERA,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        Manifest.permission.READ_EXTERNAL_STORAGE};
 
         ActivityCompat.requestPermissions(this,permissions, 0);
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
@@ -750,11 +1094,7 @@ public class MainActivity extends AppCompatActivity {
         canTakePicture = (grantResults[0] == PackageManager.PERMISSION_GRANTED);
         canSave = (grantResults[1] == PackageManager.PERMISSION_GRANTED);
         canPickFromGallery = (grantResults[2] == PackageManager.PERMISSION_GRANTED);
-        if (!canSave) {
-            saveButton.setVisibility(View.INVISIBLE);
-        } else {
-            saveButton.setVisibility(View.VISIBLE);
-        }
+
         invalidateOptionsMenu();
     }
 
@@ -804,21 +1144,12 @@ public class MainActivity extends AppCompatActivity {
         resetAppliedBitmap();
     }
 
-    /**
-     * Listener bound to the button used to save a picture.
-     */
-    private View.OnClickListener saveButtonListener = new View.OnClickListener(){
-        public void onClick(View v){
-            saveImage();
-        }
-    };
-
+    @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        invalidateOptionsMenu();
         menu.getItem(0).setVisible(canTakePicture);
         menu.getItem(1).setVisible(canPickFromGallery);
-        super.onPrepareOptionsMenu(menu);
-        return true;
+        menu.getItem(2).setVisible(canSave);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -827,13 +1158,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
-        AlertDialog.Builder mBuilder = new AlertDialog.Builder(MainActivity.this);
-        View mView = getLayoutInflater().inflate(R.layout.dialog_spinner, null);
-        final Spinner mSpinner = mView.findViewById(R.id.spinner);
-        AlertDialog dialog;
-        ArrayAdapter<String> adapter;
-        String[] mArray;
-
         switch (item.getItemId()) {
             case R.id.applyButton:
                 appliedBitmap = bitmap.copy(bitmap.getConfig(), true);
@@ -847,151 +1171,8 @@ public class MainActivity extends AppCompatActivity {
             case R.id.gallery:
                 onImageGalleryClicked();
                 return true;
-            case R.id.cartoon:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                mBuilder.setTitle("Amount of Blur desired");
-                mArray = getResources().getStringArray(R.array.threshold);
-                adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                mSpinner.setAdapter(adapter);
-                mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        complexFilter.cartoon(mSpinner.getSelectedItemPosition());
-                        dialogInterface.dismiss();
-                    }
-                });
-                mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-                mBuilder.setView(mView);
-                dialog = mBuilder.create();
-                dialog.show();
-                return true;
-            case R.id.warhol:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.VISIBLE);
-                return true;
-            case R.id.sharpening:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                convolutionFilter.convolution(convolutionFilter.convolutionMatrix(4,3));
-                return true;
-            case R.id.laplacien:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                convolutionFilter.laplacien();
-                return true;
-            case R.id.contouring:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                convolutionFilter.contouring();
-                return true;
-            case R.id.luminosityChange:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.VISIBLE,View.GONE,View.GONE,View.GONE);
-                return true;
-            case R.id.overexposure:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                luminosityFilter.overexposure();
-                return true;
-            case R.id.magicWand:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.VISIBLE,View.GONE);
-                return true;
-            case R.id.warmthChange:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.VISIBLE,View.GONE,View.GONE);
-                return true;
-            case R.id.contrastChange:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.VISIBLE,View.GONE,View.GONE,View.GONE,View.GONE);
-                return true;
-            case R.id.equalizeColors:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                contrastFilter.equalizeColors();
-                return true;
-            case R.id.equalizeGray:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                contrastFilter.equalizeGray();
-                return true;
-            case R.id.sepia:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                colourFilter.sepia();
-                return true;
-            case R.id.grayAndTint:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                mBuilder.setTitle("Choose the hue of the color wanted");
-                mArray = getResources().getStringArray(R.array.colorHue);
-                adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                mSpinner.setAdapter(adapter);
-                mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        colourFilter.grayAndTint(10*mSpinner.getSelectedItemPosition());
-                        dialogInterface.dismiss();
-                    }
-                });
-                mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-                mBuilder.setView(mView);
-                dialog = mBuilder.create();
-                dialog.show();
-                return true;
-            case R.id.toGray:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                colourFilter.toGray();
-                return true;
-            case R.id.changeTint:
-                onFilterCalled(View.VISIBLE,View.VISIBLE,View.VISIBLE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                return true;
-            case R.id.averageBlurring:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                mBuilder.setTitle("Amount of Blur desired");
-                mArray = getResources().getStringArray(R.array.amountBlur);
-                adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                mSpinner.setAdapter(adapter);
-                mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        convolutionFilter.averageBlurring(mSpinner.getSelectedItemPosition());
-                        dialogInterface.dismiss();
-                    }
-                });
-                mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-                mBuilder.setView(mView);
-                dialog = mBuilder.create();
-                dialog.show();
-                return true;
-            case R.id.gaussianBlurring:
-                onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
-                mBuilder.setTitle("Amount of Blur desired");
-                mArray = getResources().getStringArray(R.array.amountBlur);
-                adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, mArray);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                mSpinner.setAdapter(adapter);
-                mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        convolutionFilter.convolution(convolutionFilter.convolutionMatrix(2, mSpinner.getSelectedItemPosition()));
-                        dialogInterface.dismiss();
-                    }
-                });
-                mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-                mBuilder.setView(mView);
-                dialog = mBuilder.create();
-                dialog.show();
+            case R.id.save:
+                saveImage();
                 return true;
             default:
                 return false;

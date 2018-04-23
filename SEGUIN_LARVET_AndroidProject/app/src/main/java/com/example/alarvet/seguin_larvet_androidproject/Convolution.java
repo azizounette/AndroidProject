@@ -1,15 +1,20 @@
 package com.example.alarvet.seguin_larvet_androidproject;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.support.v8.renderscript.Allocation;
+import android.support.v8.renderscript.Element;
+import android.support.v8.renderscript.RenderScript;
+import android.support.v8.renderscript.ScriptIntrinsicBlur;
 
 /**
  * This class applies convolutions to the bitmap.
  */
 public class Convolution extends Filter {
 
-    public Convolution(Bitmap bmp){
-        super(bmp);
+    public Convolution(Bitmap bmp, Context context){
+        super(bmp, context);
     }
 
     /* Average blurring effect */
@@ -94,7 +99,14 @@ public class Convolution extends Filter {
         bmp.setPixels(pixels, 0, width,  0, 0, width, height);
     }
 
-    // x = distance au centre de la matrice; y normalise la valeur au centre à 10 fois le rayon.
+    /**
+     * Computes gaussian coefficients.
+     * @param x Distance from the center of the matrix.
+     * @param y Used to normalize the central value into 10 times the radius.
+     * @param sigma Standard deviation of the gaussian distribution.
+     * @param radius The radius of gaussian filter.
+     * @return The gaussian coefficient.
+     */
     private float gauss (int x, int y, double sigma, int radius) {
         return (float) (10*radius*Math.exp(-((y-radius)*(y-radius)+(x-radius)*(x-radius))/(2*sigma*sigma)));
     }
@@ -217,4 +229,6 @@ public class Convolution extends Filter {
         
         bmp.setPixels(pixelsf, 0, width,  0, 0, width, height);
     }
+
+
 }

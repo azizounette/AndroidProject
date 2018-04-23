@@ -2,133 +2,262 @@
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.alarvet.seguin_larvet_androidproject.MainActivity">
 
+    <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="#ffb3ff"
+        android:minHeight="?android:attr/actionBarSize" />
+
+
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="352dp"
-        android:layout_height="434dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:contentDescription="@string/imageView"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:scaleType="matrix"
+        app:layout_constraintBottom_toTopOf="@+id/warholBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.056"
-        app:srcCompat="@android:color/background_light"
-        android:scaleType="matrix"
-        tools:layout_editor_absoluteX="18dp" />
+        app:layout_constraintTop_toBottomOf="@id/scrollBar"
+        app:srcCompat="@android:color/background_light" />
 
     <SeekBar
         android:id="@+id/hueBar"
         android:layout_width="298dp"
         android:layout_height="14dp"
+        android:layout_marginBottom="20dp"
         android:max="359"
         android:progress="360"
-        android:layout_marginBottom="20dp"
-        tools:layout_editor_absoluteX="43dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        tools:layout_editor_absoluteX="43dp" />
 
     <SeekBar
         android:id="@+id/saturationBar"
         android:layout_width="298dp"
         android:layout_height="14dp"
+        android:layout_marginBottom="20dp"
         android:max="100"
         android:progress="100"
-        android:layout_marginBottom="20dp"
-        tools:layout_editor_absoluteX="43dp"
+        app:layout_constraintBottom_toTopOf="@id/hueBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/hueBar" />
+        tools:layout_editor_absoluteX="43dp" />
 
     <SeekBar
         android:id="@+id/valueBar"
         android:layout_width="298dp"
         android:layout_height="14dp"
+        android:layout_marginBottom="20dp"
         android:max="100"
         android:progress="100"
-        android:layout_marginBottom="20dp"
-        tools:layout_editor_absoluteX="43dp"
+        app:layout_constraintBottom_toTopOf="@id/saturationBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/saturationBar" />
+        tools:layout_editor_absoluteX="43dp" />
 
     <SeekBar
         android:id="@+id/contrastBar"
         android:layout_width="298dp"
         android:layout_height="14dp"
+        android:layout_marginBottom="20dp"
         android:max="256"
         android:progress="256"
-        android:layout_marginBottom="20dp"
-        tools:layout_editor_absoluteX="43dp"
+        app:layout_constraintBottom_toTopOf="@id/valueBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/valueBar" />
+        tools:layout_editor_absoluteX="43dp" />
 
     <SeekBar
         android:id="@+id/luminosityBar"
         android:layout_width="298dp"
         android:layout_height="14dp"
-        android:max="128"
-        android:progress="128"
         android:layout_marginBottom="20dp"
-        tools:layout_editor_absoluteX="43dp"
+        android:max="250"
+        android:progress="128"
+        app:layout_constraintBottom_toTopOf="@id/contrastBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/contrastBar" />
+        tools:layout_editor_absoluteX="43dp" />
 
     <SeekBar
         android:id="@+id/magicWandBar"
         android:layout_width="298dp"
         android:layout_height="14dp"
+        android:layout_marginBottom="20dp"
         android:max="200"
         android:progress="200"
-        android:layout_marginBottom="20dp"
-        tools:layout_editor_absoluteX="43dp"
+        app:layout_constraintBottom_toTopOf="@id/luminosityBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/luminosityBar" />
+        tools:layout_editor_absoluteX="43dp" />
 
     <SeekBar
         android:id="@+id/warmthBar"
         android:layout_width="298dp"
         android:layout_height="14dp"
+        android:layout_marginBottom="20dp"
         android:max="256"
         android:progress="256"
-        android:layout_marginBottom="20dp"
-        tools:layout_editor_absoluteX="43dp"
+        app:layout_constraintBottom_toTopOf="@id/magicWandBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/magicWandBar" />
+        tools:layout_editor_absoluteX="43dp" />
 
     <SeekBar
         android:id="@+id/warholBar"
         android:layout_width="298dp"
         android:layout_height="14dp"
+        android:layout_marginBottom="20dp"
         android:max="255"
         android:progress="255"
-        android:layout_marginBottom="20dp"
-        tools:layout_editor_absoluteX="43dp"
+        app:layout_constraintBottom_toTopOf="@id/warmthBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/warmthBar" />
+        tools:layout_editor_absoluteX="43dp" />
 
-    <Button
-        android:id="@+id/saveButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:text="@string/savePic"
-        app:layout_constraintBottom_toTopOf="@id/warholBar"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+    <HorizontalScrollView
+        android:id="@+id/scrollBar"
+        android:layout_width="0dp"
+        android:layout_height="49dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="left"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/changeTintButton"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Tint" />
+
+            <Button
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:id="@+id/grayButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Gray" />
+
+            <Button
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:id="@+id/grayAndTintButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Gray&amp;Tint" />
+
+            <Button
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:id="@+id/sepiaButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Sepia" />
+
+            <Button
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:id="@+id/equalizeGrayButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Equalize Gray" />
+            <Button
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:id="@+id/equalizeColorsButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Equalize Colors" />
+            <Button
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:id="@+id/contrastButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Contrast" />
+            <Button
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:id="@+id/warmthButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Warmth" />
+            <Button
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:id="@+id/magicWandButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Magic Wand" />
+            <Button
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:id="@+id/overexposureButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Overexpose" />
+            <Button
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:id="@+id/luminosityButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Luminosity" />
+            <Button
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:id="@+id/averageBlurringButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Average Blurring" />
+            <Button
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:id="@+id/gaussianBlurringButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Gaussian Blurring" />
+            <Button
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:id="@+id/contouringButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Contour" />
+            <Button
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:id="@+id/laplacienButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Laplacien" />
+            <Button
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:id="@+id/warholButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Warhol" />
+            <Button
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:id="@+id/cartoonButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Cartoon" />
+            <Button
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:id="@+id/negativeButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Invert" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
 
 </android.support.constraint.ConstraintLayout>

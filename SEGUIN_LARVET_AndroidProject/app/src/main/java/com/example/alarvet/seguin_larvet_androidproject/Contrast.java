@@ -1,15 +1,18 @@
 package com.example.alarvet.seguin_larvet_androidproject;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.support.v8.renderscript.Allocation;
+import android.support.v8.renderscript.RenderScript;
 
 /**
  * this class applies contrast methods to the bitmap.
  */
 public class Contrast extends Filter {
 
-    public Contrast(Bitmap bmp){
-        super(bmp);
+    public Contrast(Bitmap bmp, Context context){
+        super(bmp, context);
     }
 
     /* Histogram equalizer for contrasts in black and white */
@@ -54,7 +57,7 @@ public class Contrast extends Filter {
     /**
      * This method equalize the red, the green and the blue histograms.
      */
-    public void equalizeColors() {
+    /*public void equalizeColors() {
         Bitmap bmp = this.getBmp();
         int[] cumulativeH = cumulativeHist(histogram(bmp));
         int n = width * height;
@@ -68,7 +71,49 @@ public class Contrast extends Filter {
             pixels[i] = Color.rgb(r, g, b);
         }
         bmp.setPixels(pixels, 0, width, 0, 0, width, height);
+    }*/
+
+    public void equalizeColors(){
+
+        Bitmap bmp = getBmp();
+        //Get bmp size
+        int width = bmp.getWidth();
+        int height = bmp.getHeight();
+
+        //Create renderscript
+        RenderScript rs = RenderScript.create(getContext());
+
+        //Create allocation from Bitmap
+        Allocation allocationA = Allocation.createFromBitmap(rs, bmp);
+
+        //Create allocation with same type
+        Allocation allocationB = Allocation.createTyped(rs, allocationA.getType());
+
+        //Create script from rs file.
+        ScriptC_histo histEqScript = new ScriptC_histo(rs);
+
+        //Set size in script
+        histEqScript.set_size(width*height);
+
+        //Call the first kernel.
+        histEqScript.forEach_root(allocationA, allocationB);
+
+        //Call the rs method to compute the remap array
+        histEqScript.invoke_createRemapArray();
+
+        //Call the second kernel
+        histEqScript.forEach_remaptoRGB(allocationB, allocationA);
+
+        //Copy script result into bitmap
+        allocationA.copyTo(bmp);
+
+        //Destroy everything to free memory
+        allocationA.destroy();
+        allocationB.destroy();
+        histEqScript.destroy();
+        rs.destroy();
     }
+
 
     //TODO Value between -128 and 128
     /**
