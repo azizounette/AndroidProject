@@ -37,11 +37,11 @@ public class Luminosity extends Filter {
      * This method changes the luminosity of the image according to the parameter.
      * @param value the amount of luminosity to add.
      */
-    /*public void luminosityChange(float value) {
+    public void luminosityChange(float value) {
         Bitmap bmp = this.getBmp();
         int[] pixels = new int[width * height];
         bmp.getPixels(pixels, 0, width, 0, 0, width, height);
-        float k = value/100;
+        float k = (value+100)/100;
         int Red, Green, Blue;
         for (int i = 0; i < height*width; i++) {
             Red = Math.min((int)((Color.red(pixels[i]))*k), 255);
@@ -50,13 +50,13 @@ public class Luminosity extends Filter {
             pixels[i] = Color.rgb(Red, Green, Blue);
         }
         bmp.setPixels(pixels, 0, width,  0, 0, width, height);
-    }*/
+    }
 
     /**
      *
      * @param value
      */
-    public void luminosityChange(float value) {
+    /*public void luminosityChange(float value) {
             RenderScript rs = RenderScript.create(getContext());
 
             Allocation input = Allocation.createFromBitmap(rs, getBmp());
@@ -72,5 +72,5 @@ public class Luminosity extends Filter {
 
             input.destroy(); output.destroy();
             brightnessScript.destroy(); rs.destroy();
-    }
+    }*/
 }

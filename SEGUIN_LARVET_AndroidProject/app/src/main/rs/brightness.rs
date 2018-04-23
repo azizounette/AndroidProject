@@ -7,9 +7,9 @@ uchar4 RS_KERNEL negative(uchar4 in) {
 
     float4 out = rsUnpackColor8888(in);
 
-    out.r *= brightnessScale/100;
-    out.g *= brightnessScale/100;
-    out.b *= brightnessScale/100;
+    out.r *= (brightnessScale+100)/100;
+    out.g *= (brightnessScale+100)/100;
+    out.b *= (brightnessScale+100)/100;
 
     if(out.r > 1) {out.r = 1;}
     if(out.g > 1) {out.g = 1;}
