@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.support.v8.renderscript.Allocation;
 import android.support.v8.renderscript.RenderScript;
 
+
+
 /**
  * This class applies colour filters to the bitmap.
  */
@@ -38,6 +40,23 @@ public class Colour extends Filter {
 
         ScriptC_toGray grayScript = new ScriptC_toGray(rs);
         grayScript.forEach_toGray(input, output);
+
+        output.copyTo(getBmp());
+
+        input.destroy();
+        output.destroy();
+        grayScript.destroy();
+        rs.destroy();
+    }
+
+    public void negative() {
+        RenderScript rs = RenderScript.create(getContext());
+
+        Allocation input = Allocation.createFromBitmap(rs, getBmp());
+        Allocation output = Allocation.createTyped(rs, input.getType());
+
+        ScriptC_negative grayScript = new ScriptC_negative(rs);
+        grayScript.forEach_negative(input, output);
 
         output.copyTo(getBmp());
 

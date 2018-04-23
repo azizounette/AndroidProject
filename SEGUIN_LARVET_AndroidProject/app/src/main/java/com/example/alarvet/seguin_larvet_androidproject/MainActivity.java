@@ -396,6 +396,9 @@ public class MainActivity extends AppCompatActivity {
         Button cartoonButton = (Button) findViewById(R.id.cartoonButton);
         cartoonButton.setOnClickListener(cartoonButtonListener);
 
+        Button negativeButton = (Button) findViewById(R.id.negativeButton);
+        negativeButton.setOnClickListener(negativeButtonListener);
+
         Toolbar toolbar =   (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -587,6 +590,12 @@ public class MainActivity extends AppCompatActivity {
             mBuilder.setView(mView);
             dialog = mBuilder.create();
             dialog.show();
+        }
+    };
+    private View.OnClickListener negativeButtonListener = new View.OnClickListener(){
+        public void onClick(View v){
+            onFilterCalled(View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
+            colourFilter.negative();
         }
     };
 

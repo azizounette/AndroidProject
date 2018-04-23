@@ -250,6 +250,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Cartoon" />
+            <Button
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:id="@+id/negativeButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Invert" />
 
         </LinearLayout>
     </HorizontalScrollView>

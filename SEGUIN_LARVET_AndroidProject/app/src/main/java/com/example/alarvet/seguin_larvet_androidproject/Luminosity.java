@@ -52,10 +52,6 @@ public class Luminosity extends Filter {
         bmp.setPixels(pixels, 0, width,  0, 0, width, height);
     }
 
-    /**
-     *
-     * @param value
-     */
     /*public void luminosityChange(float value) {
             RenderScript rs = RenderScript.create(getContext());
 

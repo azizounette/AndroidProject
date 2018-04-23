@@ -3,6 +3,10 @@ package com.example.alarvet.seguin_larvet_androidproject;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.support.v8.renderscript.Allocation;
+import android.support.v8.renderscript.Element;
+import android.support.v8.renderscript.RenderScript;
+import android.support.v8.renderscript.ScriptIntrinsicBlur;
 
 /**
  * This class applies convolutions to the bitmap.
@@ -76,6 +80,17 @@ public class Convolution extends Filter {
         bmp.setPixels(pixels, 0, width,  0, 0, width, height);
     }
     /* End of average blurring effect */
+
+    public void blurBmp() {
+        RenderScript rs = RenderScript.create(getContext());
+        ScriptIntrinsicBlur theIntrinsic = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
+        Allocation input = Allocation.createFromBitmap(rs, getBmp());
+        Allocation output = Allocation.createFromBitmap(rs, getBmp());
+        theIntrinsic.setRadius(7.5f);
+        theIntrinsic.setInput(input);
+        theIntrinsic.forEach(output);
+        output.copyTo(getBmp());
+    }
 
     /**
      * This method applies a Laplacien filter.
