@@ -260,6 +260,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private float dx;
 
+    /**
      * Used for scrolling. postTranslate Y distance.
      */
     private float dy;
