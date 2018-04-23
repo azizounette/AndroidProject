@@ -308,6 +308,10 @@ public class MainActivity extends AppCompatActivity {
      */
     private static final String SAVE_APPLIED_BMP = "SaveAppliedBitmap";
 
+    /**
+     * All these component are used to displayed a pop up box with a spinner giving choices to the
+     * user about the filter they want to use.
+     */
     private AlertDialog.Builder mBuilder;
     private AlertDialog dialog;
     private ArrayAdapter<String> adapter;
@@ -404,6 +408,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * All these methods are button listener, whenever one is called, the seekbars are set on or off accordingly to the situation.
+     */
     private View.OnClickListener changeTintButtonListener = new View.OnClickListener(){
         public void onClick(View v){
             onFilterCalled(View.VISIBLE,View.VISIBLE,View.VISIBLE,View.GONE,View.GONE,View.GONE,View.GONE,View.GONE);
