@@ -553,8 +553,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Resets the appliedBitmap to the original bitmap (that does not
-     * have any change) and recreates the filters.
+     * Resets the bitmap we apply changes on to the last bitmap we pressed "apply"
+     * on and recreates the filters.
      */
     private void resetAppliedBitmap () {
         bitmap = appliedBitmap.copy(originalBitmap.getConfig(), true);

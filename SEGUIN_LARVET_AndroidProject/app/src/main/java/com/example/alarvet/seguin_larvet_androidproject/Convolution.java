@@ -110,7 +110,7 @@ public class Convolution extends Filter {
         int[] res = new int[dimension*dimension];
         switch (cases) {
             case 0:
-                res[0] = -1;res[2] = 1;res[3] = -1;res[5] = 1;res[6] = -1;res[8] = 1;
+                res[0] = -1;res[2] = 1;res[3] = -2;res[5] = 2;res[6] = -1;res[8] = 1;
                 break;
             case 1:
                 for (int i = 0; i < dimension*dimension; i++) {
