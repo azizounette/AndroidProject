@@ -6,12 +6,27 @@ import android.graphics.Color;
 
 /**
  * This class is the mother class of all the other filter classes.
- * It shares the height and the width of the bitmap with all the classes.
  */
 public abstract class Filter {
+
+    /**
+     * The Bitmap the filters will be applied on.
+     */
     private final Bitmap bmp;
+
+    /**
+     * The context the filters will be applied in.
+     */
     private final Context context;
+
+    /**
+     * The height of the bitmap bmp.
+     */
     protected int height;
+
+    /**
+     * The width of the bitmap bmp.
+     */
     protected int width;
 
     public Filter(Bitmap bmp, Context context) {

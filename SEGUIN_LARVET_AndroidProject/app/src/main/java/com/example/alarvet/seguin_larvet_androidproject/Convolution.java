@@ -81,17 +81,6 @@ public class Convolution extends Filter {
     }
     /* End of average blurring effect */
 
-    public void blurBmp() {
-        RenderScript rs = RenderScript.create(getContext());
-        ScriptIntrinsicBlur theIntrinsic = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
-        Allocation input = Allocation.createFromBitmap(rs, getBmp());
-        Allocation output = Allocation.createFromBitmap(rs, getBmp());
-        theIntrinsic.setRadius(7.5f);
-        theIntrinsic.setInput(input);
-        theIntrinsic.forEach(output);
-        output.copyTo(getBmp());
-    }
-
     /**
      * This method applies a Laplacien filter.
      */
@@ -110,7 +99,14 @@ public class Convolution extends Filter {
         bmp.setPixels(pixels, 0, width,  0, 0, width, height);
     }
 
-    // x = distance au centre de la matrice; y normalise la valeur au centre à 10 fois le rayon.
+    /**
+     * Computes gaussian coefficients.
+     * @param x Distance from the center of the matrix.
+     * @param y Used to normalize the central value into 10 times the radius.
+     * @param sigma Standard deviation of the gaussian distribution.
+     * @param radius The radius of gaussian filter.
+     * @return The gaussian coefficient.
+     */
     private float gauss (int x, int y, double sigma, int radius) {
         return (float) (10*radius*Math.exp(-((y-radius)*(y-radius)+(x-radius)*(x-radius))/(2*sigma*sigma)));
     }
