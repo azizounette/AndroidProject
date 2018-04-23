@@ -3,6 +3,8 @@ package com.example.alarvet.seguin_larvet_androidproject;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.support.v8.renderscript.Allocation;
+import android.support.v8.renderscript.RenderScript;
 
 /**
  * This class applies luminosity filters.
@@ -30,16 +32,16 @@ public class Luminosity extends Filter {
         bmp.setPixels(pixels, 0, width, 0, 0, width, height);
     }
 
-    //TODO Value between -100 and 28
+    //TODO Value between 0 and 250
     /**
      * This method changes the luminosity of the image according to the parameter.
      * @param value the amount of luminosity to add.
      */
-    public void luminosityChange(float value) {
+    /*public void luminosityChange(float value) {
         Bitmap bmp = this.getBmp();
         int[] pixels = new int[width * height];
         bmp.getPixels(pixels, 0, width, 0, 0, width, height);
-        float k = 1 + value/100;
+        float k = value/100;
         int Red, Green, Blue;
         for (int i = 0; i < height*width; i++) {
             Red = Math.min((int)((Color.red(pixels[i]))*k), 255);
@@ -48,5 +50,27 @@ public class Luminosity extends Filter {
             pixels[i] = Color.rgb(Red, Green, Blue);
         }
         bmp.setPixels(pixels, 0, width,  0, 0, width, height);
+    }*/
+
+    /**
+     *
+     * @param value
+     */
+    public void luminosityChange(float value) {
+            RenderScript rs = RenderScript.create(getContext());
+
+            Allocation input = Allocation.createFromBitmap(rs, getBmp());
+            Allocation output = Allocation.createTyped(rs, input.getType());
+
+            ScriptC_brightness brightnessScript = new ScriptC_brightness(rs);
+
+            brightnessScript.set_brightnessScale(value);
+
+            brightnessScript.forEach_negative(input, output);
+
+            output.copyTo(getBmp());
+
+            input.destroy(); output.destroy();
+            brightnessScript.destroy(); rs.destroy();
     }
 }
