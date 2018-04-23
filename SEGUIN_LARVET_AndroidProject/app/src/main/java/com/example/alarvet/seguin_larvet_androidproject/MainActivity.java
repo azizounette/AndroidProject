@@ -253,15 +253,42 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Used to set a maximum limit on the zooming action.
      */
-    static final float MAXZOOM = 2.5f;
+    static final float MAXZOOM = 4f;
 
-    private float dx; // postTranslate X distance
-    private float dy; // postTranslate Y distance
+    /**
+     * Used for scrolling. postTranslate X distance.
+     */
+    private float dx;
+
+     * Used for scrolling. postTranslate Y distance.
+     */
+    private float dy;
+
+    /**
+     * Used to store the values of the Matrix matrix.
+     * @see #matrix
+     */
     private float[] matrixValues = new float[9];
-    float matrixX = 0; // X coordinate of matrix inside the ImageView
-    float matrixY = 0; // Y coordinate of matrix inside the ImageView
-    float width = 0; // width of drawable
-    float height = 0; // height of drawable
+
+    /**
+     * X coordinate of matrix inside the ImageView.
+     */
+    float matrixX = 0;
+
+    /**
+     * Y coordinate of matrix inside the ImageView.
+     */
+    float matrixY = 0;
+
+    /**
+     * Width of the drawable created from the ImageView.
+     */
+    float width = 0;
+
+    /**
+     * Height of the drawable created from the ImageView.
+     */
+    float height = 0;
 
 
     // Variable used for saving the bitmap before an orientation change
